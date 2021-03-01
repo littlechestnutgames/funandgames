@@ -18,12 +18,12 @@ jobs:
                   zip -r "$tmp2.mcaddon" "$tmp2"
                   zip "release.mcaddon" "$tmp" "$tmp2"
                   rm "$tmp1.mcaddon" "$tmp2.mcaddon"
-                  
-            - uses: djnicholson/release-action@v2.10
-            - name: Release mcaddon
+
+            - name: Upload Release File
+              uses: djnicholson/release-action@v2.11
               with:
                   token: ${{ secrets.GITHUB_TOKEN }}
-                  release-name: Fun & Games Addon
-                  tag-name: rolling-release
-                  asset-name: MC Addon File
-                  file: release.mcaddon
+                  release-name: 'Fun & Games latest rolling build'
+                  tag-name: 'v0.0-rolling-build'
+                  asset-name: 'release.mcaddon'
+                  file: 'release.mcaddon'

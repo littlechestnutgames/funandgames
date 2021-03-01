@@ -19,14 +19,12 @@ jobs:
                   zip "release.mcaddon" "$tmp" "$tmp2"
 
             - uses: PeerXu/upload-asset@v1
-              
-            - name: Uploading mcaddon file.
-                with:
-                    file: release.mcaddon
-                    os: linux
-                    arch: amd64
-                    with_tag: true
-                    with_sha1: true
-                    suffix: .mcaddon
-                env:
-                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              with:
+                  file: release.mcaddon
+                  os: linux
+                  arch: amd64
+                  with_tag: true
+                  with_sha1: true
+                  suffix: .mcaddon
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -13,9 +13,9 @@ jobs:
             - name: Build mcaddon files.
               run: |
                   tmp=(*_BP)
-                  zip -r "$tmp[1].mcaddon" "$tmp[1]"
+                  zip -r "$tmp.mcaddon" "$tmp"
                   tmp=(*_RP)
-                  zip -r "$tmp[1].mcaddon" "$tmp[1]"
+                  zip -r "$tmp.mcaddon" "$tmp"
                   zip "${tmp%_RP}.mcaddon" "*.mcaddon"
 
             - uses: actions/upload-artifact@v2.2.2

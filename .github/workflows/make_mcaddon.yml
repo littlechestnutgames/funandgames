@@ -16,9 +16,10 @@ jobs:
                   zip -r "$tmp.mcaddon" "$tmp"
                   tmp2=(*_RP)
                   zip -r "$tmp2.mcaddon" "$tmp2"
-                  zip "${tmp2%_RP}.mcaddon" "$tmp.mcaddon" "$tmp2.mcaddon"
+                  zip "release.mcaddon" "$tmp" "$tmp2"
 
-            - uses: actions/upload-artifact@v2.2.2
+            - uses: djnicholson/release-action@v2.11
               with:
-                  name: "${tmp%_RP}.mcaddon"
-                  path: ./
+                  token: ${{ secrets.GITHUB_TOKEN }}
+                  asset-name: 'Latest Build'
+                  file: 'release.mcaddon'

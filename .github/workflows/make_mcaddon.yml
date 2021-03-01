@@ -14,9 +14,9 @@ jobs:
               run: |
                   tmp=(*_BP)
                   zip -r "$tmp.mcaddon" "$tmp"
-                  tmp=(*_RP)
-                  zip -r "$tmp.mcaddon" "$tmp"
-                  zip "${tmp%_RP}.mcaddon" "*.mcaddon"
+                  tmp2=(*_RP)
+                  zip -r "$tmp2.mcaddon" "$tmp2"
+                  zip "${tmp2%_RP}.mcaddon" "$tmp.mcaddon" "$tmp2.mcaddon"
 
             - uses: actions/upload-artifact@v2.2.2
               with:

@@ -1,0 +1,12 @@
+﻿tile.glc:white_chess_knight.name=White Knight
+tile.glc:black_chess_knight.name=Black Knight
+tile.glc:white_chess_rook.name=White Rook
+tile.glc:black_chess_rook.name=Black Rook
+tile.glc:white_chess_pawn.name=White Pawn
+tile.glc:black_chess_pawn.name=Black Pawn
+tile.glc:white_chess_bishop.name=White Bishop
+tile.glc:black_chess_bishop.name=Black Bishop
+tile.glc:white_chess_king.name=White King
+tile.glc:black_chess_king.name=Black King
+tile.glc:white_chess_queen.name=White Queen
+tile.glc:black_chess_queen.name=Black Queen

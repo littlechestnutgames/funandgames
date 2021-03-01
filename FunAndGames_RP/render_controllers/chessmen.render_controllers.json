@@ -1,0 +1,38 @@
+{
+    "format_version": "1.10.0",
+    "render_controllers": {
+      "controller.render.chessmen": {
+        "arrays": {
+          "textures": {
+            "Array.skins": [
+              "Texture.white_pawn",
+              "Texture.white_rook",
+              "Texture.white_knight",
+              "Texture.white_bishop",
+              "Texture.white_queen",
+              "Texture.white_king",
+              "Texture.black_pawn",
+              "Texture.black_rook",
+              "Texture.black_knight",
+              "Texture.black_bishop",
+              "Texture.black_queen",
+              "Texture.black_king"
+            ]
+          },
+          "geometries": {
+            "Array.geos": [
+              "Geometry.pawn",
+              "Geometry.rook",
+              "Geometry.knight",
+              "Geometry.bishop",
+              "Geometry.queen",
+              "Geometry.king"
+            ]
+          }
+        },
+        "geometry": "Array.geos[query.variant]",
+        "materials": [ { "*": "Material.default" } ],
+        "textures": [ "Array.skins[query.mark_variant == 1 ? query.variant + 6 : query.variant]" ]
+      }
+    }
+}

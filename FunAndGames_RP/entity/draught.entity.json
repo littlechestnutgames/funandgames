@@ -1,0 +1,17 @@
+{
+    "format_version": "1.10.0",
+    "minecraft:client_entity": {
+      "description": {
+        "identifier": "glc:draught",
+        "materials": { "default": "skeleton" },
+        "textures": {
+          "default": "textures/entity/draught_red",
+          "black": "textures/entity/draught_black"
+        },
+        "geometry": {
+          "default": "geometry.draught"
+        },
+        "render_controllers": [ "controller.render.draught" ]
+      }
+    }
+  }

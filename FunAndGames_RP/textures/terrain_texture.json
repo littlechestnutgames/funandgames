@@ -1,0 +1,44 @@
+{
+   "num_mip_levels" : 4,
+   "padding" : 8,
+   "resource_pack_name" : "Fun & Games",
+   "texture_data" : {
+      "white_chess_pawn": {
+        "textures": "textures/blocks/white_pawn"
+      },
+      "black_chess_pawn": {
+        "textures": "textures/blocks/black_pawn"
+      },
+      "white_chess_rook": {
+        "textures": "textures/blocks/white_rook"
+      },
+      "black_chess_rook": {
+        "textures": "textures/blocks/black_rook"
+      },
+      "white_chess_knight": {
+        "textures": "textures/blocks/white_knight"
+      },
+      "black_chess_knight": {
+        "textures": "textures/blocks/black_knight"
+      },
+      "white_chess_bishop": {
+        "textures": "textures/blocks/white_bishop"
+      },
+      "black_chess_bishop": {
+        "textures": "textures/blocks/black_bishop"
+      },
+      "white_chess_king": {
+        "textures": "textures/blocks/white_king"
+      },
+      "black_chess_king": {
+        "textures": "textures/blocks/black_king"
+      },
+      "white_chess_queen": {
+        "textures": "textures/blocks/white_queen"
+      },
+      "black_chess_queen": {
+        "textures": "textures/blocks/black_queen"
+      }
+   },
+   "texture_name" : "atlas.terrain"
+}

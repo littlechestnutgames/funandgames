@@ -1,0 +1,98 @@
+{
+   "glc:white_chess_pawn": {
+      "sound": "wood",
+      "textures": {
+         "up": "white_chess_pawn",
+         "down": "white_chess_pawn",
+         "side": "white_chess_pawn"
+      }
+   },
+   "glc:black_chess_pawn": {
+      "sound": "wood",
+      "textures": {
+         "up": "black_chess_pawn",
+         "down": "black_chess_pawn",
+         "side": "black_chess_pawn"
+      }
+   },
+   "glc:white_chess_rook": {
+      "sound": "wood",
+      "textures": {
+         "up": "white_chess_rook",
+         "down": "white_chess_rook",
+         "side": "white_chess_rook"
+      }
+   },
+   "glc:black_chess_rook": {
+      "sound": "wood",
+      "textures": {
+         "up": "black_chess_rook",
+         "down": "black_chess_rook",
+         "side": "black_chess_rook"
+      }
+   },
+   "glc:white_chess_knight": {
+      "sound": "wood",
+      "textures": {
+         "up": "white_chess_knight",
+         "down": "white_chess_knight",
+         "side": "white_chess_knight"
+      }
+   },
+   "glc:black_chess_knight": {
+      "sound": "wood",
+      "textures": {
+         "up": "black_chess_knight",
+         "down": "black_chess_knight",
+         "side": "black_chess_knight"
+      }
+   },
+   "glc:white_chess_bishop": {
+      "sound": "wood",
+      "textures": {
+         "up": "white_chess_bishop",
+         "down": "white_chess_bishop",
+         "side": "white_chess_bishop"
+      }
+   },
+   "glc:black_chess_bishop": {
+      "sound": "wood",
+      "textures": {
+         "up": "black_chess_bishop",
+         "down": "black_chess_bishop",
+         "side": "black_chess_bishop"
+      }
+   },
+   "glc:white_chess_king": {
+      "sound": "wood",
+      "textures": {
+         "up": "white_chess_king",
+         "down": "white_chess_king",
+         "side": "white_chess_king"
+      }
+   },
+   "glc:black_chess_king": {
+      "sound": "wood",
+      "textures": {
+         "up": "black_chess_king",
+         "down": "black_chess_king",
+         "side": "black_chess_king"
+      }
+   },
+   "glc:white_chess_queen": {
+      "sound": "wood",
+      "textures": {
+         "up": "white_chess_queen",
+         "down": "white_chess_queen",
+         "side": "white_chess_queen"
+      }
+   },
+   "glc:black_chess_queen": {
+      "sound": "wood",
+      "textures": {
+         "up": "black_chess_queen",
+         "down": "black_chess_queen",
+         "side": "black_chess_queen"
+      }
+   }
+}

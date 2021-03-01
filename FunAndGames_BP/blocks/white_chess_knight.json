@@ -1,0 +1,68 @@
+{
+    "format_version": "1.16.100",
+    "minecraft:block": {
+        "description": {
+            "identifier": "glc:white_chess_knight",
+            "is_experimental": false,
+            "properties": {
+                "glc:facing_direction": [2, 3, 4, 5]
+            }
+        },
+        "permutations": [
+          {
+            "condition": "q.block_property('glc:facing_direction') == 2",
+            "components": { "minecraft:rotation": [ 0, 270, 0 ] }
+          },
+          {
+              "condition": "q.block_property('glc:facing_direction') == 3",
+              "components": { "minecraft:rotation": [ 0, 90, 0 ] }
+          },
+          {
+            "condition": "q.block_property('glc:facing_direction') == 4",
+            "components": { "minecraft:rotation": [ 0, 0, 0 ] }
+          },
+          {
+            "condition": "q.block_property('glc:facing_direction') == 5",
+            "components": { "minecraft:rotation": [ 0, 180, 0 ] }
+          }
+        ],
+        "components": {
+            "minecraft:geometry" : "geometry.chess_knight",
+            "minecraft:material_instances" : {
+              "*" : {
+                "texture" : "white_chess_knight",
+                "render_method" : "alpha_test"
+              }
+            },
+            "minecraft:loot": "loot_tables/blocks/white_knight.json",
+            "minecraft:destroy_time": 0,
+            "minecraft:explosion_resistance": 0,
+            "minecraft:friction": 0.6,
+            "minecraft:flammable": {
+                "flame_odds": 0,
+                "burn_odds": 0
+            },
+            "minecraft:map_color": "#FFFFFF",
+            "minecraft:block_light_absorption": 1.0,
+            "minecraft:block_light_emission": 0.0,
+            "minecraft:on_player_placing": {
+                "event": "glc:set_facing_direction"
+            },
+            "minecraft:on_interact": {
+                "event": "glc:change_direction"
+            }
+        },
+        "events": {
+            "glc:change_direction": {
+              "set_block_property": {
+                  "glc:facing_direction": "q.block_property('glc:facing_direction') == 5 ? 3 : (q.block_property('glc:facing_direction') == 3 ? 4 : (q.block_property('glc:facing_direction') == 4 ? 2 : (q.block_property('glc:facing_direction') == 2 ? 5 : q.block_property('glc:facing_direction'))))"
+              }
+            },
+            "glc:set_facing_direction": {
+                "set_block_property": {
+                    "glc:facing_direction": "query.cardinal_facing_2d"
+                }
+            }
+        }
+    }
+}

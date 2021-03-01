@@ -1,0 +1,25 @@
+{
+   "format_version" : 2,
+   "header" : {
+      "name" : "Fun & Games",
+      "description" : "A collection of game pieces!",
+      "platform_locked" : false,
+      "uuid" : "08fb59b0-de01-45dd-b4de-5388160a178a",
+      "version" : [ 0, 0, 1 ],
+      "min_engine_version" : [ 1, 16, 0 ]
+   },
+   "modules" : [
+      {
+         "description" : "",
+         "type" : "resources",
+         "uuid" : "4f1ea445-d38e-41bb-a727-72586d7b47ad",
+         "version" : [ 0, 0, 1 ]
+      }
+   ],
+   "metadata": {
+       "authors": [
+           "LittleChestnut Games"
+       ],
+       "license": "MIT"
+   }
+}

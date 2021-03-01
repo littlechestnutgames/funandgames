@@ -1,0 +1,97 @@
+{
+    "format_version": "1.16.100",
+    "minecraft:entity": {
+      "description": {
+        "identifier": "glc:draught",
+        "is_summonable": true
+      },
+      "component_groups": {
+        "red": {
+          "minecraft:skin_id": { "value": 0 }
+        },
+        "black": {
+          "minecraft:skin_id": { "value": 1 }
+        },
+        "peasant": {
+          "minecraft:variant": { "value": 0 }
+        },
+        "king": {
+          "minecraft:variant": { "value": 1 }
+        }
+      },
+      "components": {
+        "minecraft:variant": { "value": 0 },
+        "minecraft:type_family": {
+          "family": [ "game_piece", "draught", "checker" ]
+        },
+        "minecraft:loot": "loot_tables/entities/draught.loot_table.json",
+        "minecraft:collision_box": {
+          "width": 0.5,
+          "height": 0.125
+        },
+        "minecraft:nameable": {
+        },
+        "minecraft:health": {
+          "value": 1,
+          "max": 1
+        },
+        "minecraft:pushable": {
+          "is_pushable": false,
+          "is_pushable_by_piston": true
+        },
+        "minecraft:physics": {},
+        "minecraft:conditional_bandwidth_optimization": { }
+      },
+  
+      "events": {
+        "become_red": {
+          "add": {
+            "component_groups": [
+              "red"
+            ]
+          },
+          "remove": {
+            "component_groups": [
+              "black"
+            ]
+          }
+        },
+        "become_black": {
+          "add": {
+            "component_groups": [
+              "black"
+            ]
+          },
+          "remove": {
+            "component_groups": [
+              "red"
+            ]
+          }
+        },
+        "king_me": {
+          "add": {
+            "component_groups": [
+              "king"
+            ]
+          },
+          "remove": {
+            "component_groups": [
+              "peasant"
+            ]
+          }
+        },
+        "peasant_me": {
+          "add": {
+            "component_groups": [
+              "peasant"
+            ]
+          },
+          "remove": {
+            "component_groups": [
+              "king"
+            ]
+          }
+        }
+      }
+    }
+  }

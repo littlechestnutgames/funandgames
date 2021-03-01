@@ -17,7 +17,7 @@ jobs:
                   tmp2=(*_RP)
                   zip -r "$tmp2.mcaddon" "$tmp2"
                   zip "release.mcaddon" "$tmp" "$tmp2"
-                  rm "$tmp1.mcaddon" "$tmp2.mcaddon"
+                  rm "$tmp.mcaddon" "$tmp2.mcaddon"
 
             - name: Upload Release File
               uses: djnicholson/release-action@v2.11

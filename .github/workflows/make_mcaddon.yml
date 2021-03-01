@@ -18,7 +18,9 @@ jobs:
                   zip -r "$tmp2.mcaddon" "$tmp2"
                   zip "release.mcaddon" "$tmp" "$tmp2"
                   rm "$tmp1.mcaddon" "$tmp2.mcaddon"
+                  
             - name: Release mcaddon
+            - uses: djnicholson/release-action@v2.10
               with:
                   token: ${{ secrets.GITHUB_TOKEN }}
                   release-name: Fun & Games Addon

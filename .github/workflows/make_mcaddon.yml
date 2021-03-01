@@ -17,14 +17,11 @@ jobs:
                   tmp2=(*_RP)
                   zip -r "$tmp2.mcaddon" "$tmp2"
                   zip "release.mcaddon" "$tmp" "$tmp2"
-
-            - uses: PeerXu/upload-asset@v1
+                  rm "$tmp1.mcaddon" "$tmp2.mcaddon"
+            - name: Release mcaddon
               with:
+                  token: ${{ secrets.GITHUB_TOKEN }}
+                  release-name: Fun & Games Addon
+                  tag-name: rolling-release
+                  asset-name: MC Addon File
                   file: release.mcaddon
-                  os: linux
-                  arch: amd64
-                  with_tag: true
-                  with_sha1: true
-                  suffix: .mcaddon
-              env:
-                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

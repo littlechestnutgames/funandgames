@@ -1,0 +1,23 @@
+{
+    "format_version": "1.10.0",
+    "animation_controllers": {
+        "controller.animation.chessmen.game": {
+            "initial_state": "default",
+            "states": {
+                "default": {
+                    "transitions": [
+                        {"piece_selected": "variable.is_selected"}
+                    ]
+                },
+                "piece_selected": {
+                    "animations": ["float"],
+                    "transitions": [
+                        {
+                            "default": "!variable.is_selected"
+                        }
+                    ]
+                }
+            }
+        }
+    }
+}

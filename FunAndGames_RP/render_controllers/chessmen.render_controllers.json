@@ -32,7 +32,7 @@
         },
         "geometry": "Array.geos[query.variant]",
         "materials": [ { "*": "Material.default" } ],
-        "textures": [ "Array.skins[query.mark_variant == 1 ? query.variant + 6 : query.variant]" ]
+        "textures": [ "Array.skins[((query.mark_variant == 0 || query.mark_variant == 2) ? query.variant : query.variant + 6)]" ]
       }
     }
 }

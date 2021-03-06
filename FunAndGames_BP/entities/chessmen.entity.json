@@ -3,11 +3,23 @@
     "minecraft:entity": {
         "description": {
             "identifier": "glc:chessmen",
-            "is_summonable": true
+            "is_summonable": true,
+            "animations": {
+                "controller_bp": "controller.animation.chessmen.game_bp"
+              },
+      
+              "scripts": {
+                "pre_animation": [
+                  "variable.is_selected = (query.mark_variant > 1);"
+                ],
+                "animate": [
+                  "controller_bp"
+                ]
+              }
         },
         "component_groups": {
             "pawn": {
-                "minecraft:variant": 0,
+                "minecraft:variant": {"value": 0},
                 "minecraft:type_family": { "family": [ "game_piece", "chessmen", "pawn"] },
                 "minecraft:collision_box": {
                     "width": 0.5,
@@ -16,7 +28,7 @@
             },
             "rook": {
                 "minecraft:variant": {"value": 1},
-                "minecraft:type_family": { "family": [ "game_piece", "chessmen", "rook" ] },
+                "minecraft:type_family": { "family": [ "game_piece", "chessmen", "rook"] },
                 "minecraft:collision_box": {
                     "width": 0.5,
                     "height": 1
@@ -24,7 +36,7 @@
             },
             "knight": {
                 "minecraft:variant": {"value": 2},
-                "minecraft:type_family": { "family": [ "game_piece", "chessmen", "knight" ] },
+                "minecraft:type_family": { "family": [ "game_piece", "chessmen", "knight"] },
                 "minecraft:collision_box": {
                     "width": 0.5,
                     "height": 0.75
@@ -32,7 +44,7 @@
             },
             "bishop": {
                 "minecraft:variant": {"value": 3},
-                "minecraft:type_family": { "family": [ "game_piece", "chessmen", "bishop" ] },
+                "minecraft:type_family": { "family": [ "game_piece", "chessmen", "bishop"] },
                 "minecraft:collision_box": {
                     "width": 0.5,
                     "height": 1
@@ -40,7 +52,7 @@
             },
             "queen": {
                 "minecraft:variant": {"value": 4},
-                "minecraft:type_family": { "family": [ "game_piece", "chessmen", "queen" ] },
+                "minecraft:type_family": { "family": [ "game_piece", "chessmen", "queen"] },
                 "minecraft:collision_box": {
                     "width": 0.5,
                     "height": 1
@@ -48,41 +60,562 @@
             },
             "king": {
                 "minecraft:variant": {"value": 5},
-                "minecraft:type_family": { "family": [ "game_piece", "chessmen", "king" ] },
+                "minecraft:type_family": { "family": [ "game_piece", "chessmen", "king"] },
                 "minecraft:collision_box": {
                     "width": 0.5,
                     "height": 1
                 }
             },
+
             "white": {
-                "minecraft:mark_variant": {"value": 0}
+                "minecraft:interact": {
+                    "interactions": [
+                        {
+                            "interact_text": "Select",
+                            "on_interact": { "event": "select" }
+                        }
+                    ]
+                },
+                "minecraft:mark_variant": { "value": 0}
             },
             "black": {
-                "minecraft:mark_variant": {"value": 1}
+                "minecraft:interact": {
+                    "interactions": [
+                        {
+                            "interact_text": "Select",
+                            "on_interact": { "event": "select" }
+                        }
+                    ]
+                },
+                "minecraft:mark_variant": { "value": 1}
+            },
+            "selected_white": {
+                "minecraft:interact": {
+                    "interactions": [
+                        {
+                            "interact_text": "Deselect",
+                            "on_interact": { "event": "deselect" }
+                        }
+                    ]
+                },
+                "minecraft:mark_variant": { "value": 2}
+            },
+            "selected_black": {
+                "minecraft:interact": {
+                    "interactions": [
+                        {
+                            "interact_text": "Deselect",
+                            "on_interact": { "event": "deselect" }
+                        }
+                    ]
+                },
+                "minecraft:mark_variant": { "value": 3}
+            },
+            "north": {
+                "minecraft:default_look_angle": {"value": 0}
+            },
+            "south": {
+                "minecraft:default_look_angle": {"value": 180},
+                "minecraft:trusting": {},
+                "minecraft:genetics": {}
+            },
+            "east": {
+                "minecraft:default_look_angle": {"value": -90},
+                "minecraft:trusting": {}
+            },
+            "west": {
+                "minecraft:default_look_angle": {"value": 90},
+                "minecraft:genetics": {}
+            },
+            "moved_piece": {
+                "minecraft:giveable": {}
+            },
+            "despawn": {
+                "minecraft:despawn": {
+                    "filters": {"test": "is_visible", "value": true}
+                }
             }
         },
+
         "components": {
-            "minecraft:type_family": { "family": ["game_piece", "chessmen"] },
             "minecraft:health": {
                 "value": 1,
                 "max": 1
             },
+            "minecraft:physics": {},
             "minecraft:pushable": {
                 "is_pushable": false,
-                "is_pushable_by_piston": true
+                "is_pushable_by_piston": false
             },
-            "minecraft:physics": {},
             "minecraft:conditional_bandwidth_optimization": {}
         },
         "events": {
-            "become_white": { "remove": { "component_groups": ["black"] }, "add": { "component_groups": ["white"] } },
-            "become_black": { "remove": { "component_groups": ["white"] }, "add": { "component_groups": ["black"] } },
-            "become_pawn": { "remove": { "component_groups": ["pawn", "rook", "knight", "bishop", "queen", "king"] }, "add": { "component_groups": [ "pawn" ] } },
-            "become_rook": { "remove": { "component_groups": ["pawn", "rook", "knight", "bishop", "queen", "king"] }, "add": { "component_groups": [ "rook" ] } },
-            "become_knight": { "remove": { "component_groups": ["pawn", "rook", "knight", "bishop", "queen", "king"] }, "add": { "component_groups": [ "knight" ] } },
-            "become_bishop": { "remove": { "component_groups": ["pawn", "rook", "knight", "bishop", "queen", "king"] }, "add": { "component_groups": [ "bishop" ] } },
-            "become_queen": { "remove": { "component_groups": ["pawn", "rook", "knight", "bishop", "queen", "king"] }, "add": { "component_groups": [ "queen" ] } },
-            "become_king": { "remove": { "component_groups": ["pawn", "rook", "knight", "bishop", "queen", "king"] }, "add": { "component_groups": [ "king" ] } }
-        }
+            "nothing": {},
+            "force_despawn": {
+                "add": { "component_groups": ["despawn"] }
+            },
+            "make_black_pawn": {"add": { "component_groups": [ "pawn", "black", "north" ] } },
+            "make_black_rook": { "add": { "component_groups": [ "rook", "black", "north" ] } },
+
+            "make_black_knight": {"add": { "component_groups": [ "knight", "black", "north" ] } },
+            "make_black_bishop": { "add": { "component_groups": [ "bishop", "black", "north" ] } },
+            "make_black_queen": { "add": { "component_groups": [ "queen", "black", "north" ] } },
+            "make_black_king": { "add": { "component_groups": [ "king", "black", "north" ] } },
+            "make_white_pawn": { "add": { "component_groups": [ "pawn", "white", "north" ] } },
+            "make_white_rook": { "add": { "component_groups": [ "rook", "white", "north" ] } },
+            "make_white_knight": { "add": { "component_groups": [ "knight", "white", "north" ] } },
+            "make_white_bishop": { "add": { "component_groups": [ "bishop", "white", "north" ] } },
+            "make_white_queen": { "add": { "component_groups": [ "queen", "white", "north" ] } },
+            "make_white_king": { "add": { "component_groups": [ "king", "white", "north" ] } },
+
+            "make_black_pawn_south": {"add": { "component_groups": [ "pawn", "black", "south" ] } },
+            "make_black_rook_south": { "add": { "component_groups": [ "rook", "black", "south" ] } },
+            "make_black_knight_south": {
+                "sequence": [
+                    {"run_command": {"command": "tp @s ~ ~ ~ 180"}},
+                    {"add": { "component_groups": [ "knight", "black", "south" ] }}
+                ]
+            },
+            "make_black_bishop_south": {
+                "sequence": [
+                    {"run_command": {"command": "tp @s ~ ~ ~ 180"}},
+                    {"add": { "component_groups": [ "bishop", "black", "south" ] }}
+                 ]
+            },
+            "make_black_queen_south": {
+                "sequence": [
+                    {"run_command": {"command": "tp @s ~ ~ ~ 180"}},
+                    {"add": { "component_groups": [ "queen", "black", "south" ] }}
+                ]
+            },
+            "make_black_king_south": {
+                "sequence": [
+                    {"run_command": {"command": "tp @s ~ ~ ~ 180"}},
+                    {"add": { "component_groups": [ "king", "black", "south" ] }}
+                 ]
+            },
+
+            "make_white_pawn_south": { "add": { "component_groups": [ "pawn", "white", "south" ] } },
+            "make_white_rook_south": { "add": { "component_groups": [ "rook", "white", "south" ] } },
+            "make_white_knight_south": {
+                "sequence": [
+                    {"run_command": {"command": "tp @s ~ ~ ~ 180"}},
+                    {"add": { "component_groups": [ "knight", "white", "south" ] }}
+                ]
+            },
+            "make_white_bishop_south": {
+                "sequence": [
+                    {"run_command": {"command": "tp @s ~ ~ ~ 180"}},
+                    {"add": { "component_groups": [ "bishop", "white", "south" ] }}
+                 ]
+            },
+            "make_white_queen_south": {
+                "sequence": [
+                    {"run_command": {"command": "tp @s ~ ~ ~ 180"}},
+                    {"add": { "component_groups": [ "queen", "white", "south" ] }}
+                ]
+            },
+            "make_white_king_south": {
+                "sequence": [
+                    {"run_command": {"command": "tp @s ~ ~ ~ 180"}},
+                    {"add": { "component_groups": [ "king", "white", "south" ] }}
+                 ]
+            },
+
+            "make_black_pawn_east": {"add": { "component_groups": [ "pawn", "black", "east" ] } },
+            "make_black_rook_east": { "add": { "component_groups": [ "rook", "black", "east" ] } },
+            "make_black_knight_east": {
+                "sequence": [
+                    {"run_command": {"command": "tp @s ~ ~ ~ 90"}},
+                    {"add": { "component_groups": [ "knight", "black", "east" ] }}
+                ]
+            },
+            "make_black_bishop_east": {
+                "sequence": [
+                    {"run_command": {"command": "tp @s ~ ~ ~ 90"}},
+                    {"add": { "component_groups": [ "bishop", "black", "east" ] }}
+                 ]
+            },
+            "make_black_queen_east": {
+                "sequence": [
+                    {"run_command": {"command": "tp @s ~ ~ ~ 90"}},
+                    {"add": { "component_groups": [ "queen", "black", "east" ] }}
+                 ]
+            },
+            "make_black_king_east": {
+                "sequence": [
+                    {"run_command": {"command": "tp @s ~ ~ ~ 90"}},
+                    {"add": { "component_groups": [ "king", "black", "east" ] }}
+                ]
+            },
+            "make_white_pawn_east": { "add": { "component_groups": [ "pawn", "white", "east" ] } },
+            "make_white_rook_east": { "add": { "component_groups": [ "rook", "white", "east" ] } },
+            "make_white_knight_east": {
+                "sequence": [
+                    {"run_command": {"command": "tp @s ~ ~ ~ 90"}},
+                    {"add": { "component_groups": [ "knight", "white", "east" ] }}
+                 ]
+            },
+            "make_white_bishop_east": {
+                "sequence": [
+                    {"run_command": {"command": "tp @s ~ ~ ~ 90"}},
+                    {"add": { "component_groups": [ "bishop", "white", "east" ] }}
+                 ]
+            },
+            "make_white_queen_east": {
+                "sequence": [
+                    {"run_command": {"command": "tp @s ~ ~ ~ 90"}},
+                    {"add": { "component_groups": [ "queen", "white", "east" ] }}
+                ]
+            },
+            "make_white_king_east": {
+                "sequence": [
+                    {"run_command": {"command": "tp @s ~ ~ ~ 90"}},
+                    {"add": { "component_groups": [ "king", "white", "east" ] }}
+                 ]
+            },
+
+            "make_black_pawn_west": {"add": { "component_groups": [ "pawn", "black", "west" ] } },
+            "make_black_rook_west": { "add": { "component_groups": [ "rook", "black", "west" ] } },
+            "make_black_knight_west": {
+                "sequence": [
+                    {"run_command": {"command": "tp @s ~ ~ ~ -90"}},
+                    {"add": { "component_groups": [ "knight", "black", "west" ] } }
+                ]
+            },
+            "make_black_bishop_west": {
+                "sequence": [
+                    {"run_command": {"command": "tp @s ~ ~ ~ -90"}},
+                    {"add": { "component_groups": [ "bishop", "black", "west" ] }}
+                ]
+            },
+            "make_black_queen_west": {
+                "sequence": [
+                    {"run_command": {"command": "tp @s ~ ~ ~ -90"}},
+                    {"add": { "component_groups": [ "queen", "black", "west" ] }}
+                 ]
+            },
+            "make_black_king_west": {
+                "sequence": [
+                    {"run_command": {"command": "tp @s ~ ~ ~ -90"}},
+                    {"add": { "component_groups": [ "king", "black", "west" ] }}
+                 ]
+            },
+            "make_white_pawn_west": { "add": { "component_groups": [ "pawn", "white", "west" ] } },
+            "make_white_rook_west": { "add": { "component_groups": [ "rook", "white", "west" ] } },
+            "make_white_knight_west": {
+                "sequence": [
+                    {"run_command": {"command": "tp @s ~ ~ ~ -90"}},
+                    {"add": { "component_groups": [ "knight", "white", "west" ] }}
+                 ]
+            },
+            "make_white_bishop_west": {
+                "sequence": [
+                    {"run_command": {"command": "tp @s ~ ~ ~ -90"}},
+                    {"add": { "component_groups": [ "bishop", "white", "west" ] }}
+                 ]
+            },
+            "make_white_queen_west": {
+                "sequence": [
+                    {"run_command": {"command": "tp @s ~ ~ ~ -90"}},
+                    {"add": { "component_groups": [ "queen", "white", "west" ] }}
+                 ]
+            },
+            "make_white_king_west": {
+                "sequence": [
+                    {"run_command": {"command": "tp @s ~ ~ ~ -90"}},
+                    {"add": { "component_groups": [ "king", "white", "west" ] }}
+                 ]
+            },
+            "moved": {
+                "sequence": [
+                    {"run_command": {"command": "event entity @s deselect"}},
+                    {
+                        "add": {
+                            "component_groups": [ "moved_piece" ]
+                        }
+                    }
+                ]
+            },
+
+            "deselect": {
+                "sequence": [
+                    {
+                        "run_command": {
+                            "command": "tag @s remove selected"
+                        }
+                    },
+                    {
+                        "run_command": {
+                            "command": "event entity @e[type=glc:square,r=32] force_despawn"
+                        }
+                    },
+                    {
+                        "filters": [{"test": "is_mark_variant", "value": 2}],
+                        "remove": {"component_groups": ["selected_white"]},
+                        "add": {"component_groups": [ "white" ]}
+                    },
+                    {
+                        "filters": [{"test": "is_mark_variant", "value": 3}],
+                        "remove": {"component_groups": ["selected_black"]},
+                        "add": {"component_groups": [ "black" ]}
+                    }
+                ]
+            },
+            "select": {
+                "sequence": [
+                    {
+                        "run_command": {
+                            "command": "event entity @e[type=glc:chessmen,r=32] deselect"
+                        }
+                    },
+                    {
+                        "run_command": {
+                            "command": "tag @s add selected"
+                        }
+                    },
+                    {
+                        "filters": [ {"test": "is_mark_variant", "value": 0 }],
+                        "remove": { "component_groups": [ "white" ]},
+                        "add": { "component_groups": [ "selected_white" ] }
+                    },
+                    {
+                        "filters": [ {"test": "is_mark_variant", "value": 1 }],
+                        "sequence": [
+                            {
+                                "remove": { "component_groups": [ "black" ]},
+                                "add": { "component_groups": [ "selected_black" ] }
+                            }
+                        ]
+                    },
+                    {
+                        "filters": {"test": "is_family", "value": "pawn"},
+                        "sequence": [
+                            {
+                                "filters": {
+                                    "all_of": [
+                                        {"test": "has_component", "operator": "!=", "value": "minecraft:trusting"},
+                                        {"test": "has_component", "operator": "!=", "value": "minecraft:genetics"}
+                                    ]
+                                },
+                                "sequence": [
+                                    {"run_command": {"command": "summon glc:square ~ ~ ~-1"}},
+                                    {
+                                        "filters": {"test": "has_component", "operator": "!=", "value": "minecraft:giveable"},
+                                        "run_command": {"command": "summon glc:square ~ ~ ~-2"}
+                                    }
+                                ]
+                            },
+                            {
+                                "filters": {
+                                    "all_of": [
+                                        {"test": "has_component", "value": "minecraft:trusting"},
+                                        {"test": "has_component", "value": "minecraft:genetics"}
+                                    ]
+                                },
+                                "sequence": [
+                                    {"run_command": {"command": "summon glc:square ~ ~ ~1"}},
+                                    {
+                                        "filters": {"test": "has_component", "operator": "!=", "value": "minecraft:giveable"},
+                                        "run_command": {"command": "summon glc:square ~ ~ ~2"}
+                                    }
+                                ]
+                            },
+                            {
+                                "filters": {
+                                    "all_of": [
+                                        {"test": "has_component", "value": "minecraft:trusting"},
+                                        {"test": "has_component", "operator": "!=", "value": "minecraft:genetics"}
+                                    ]
+                                },
+                                "sequence": [
+                                    {"run_command": {"command": "summon glc:square ~1 ~ ~"}},
+                                    {
+                                        "filters": {"test": "has_component", "operator": "!=", "value": "minecraft:giveable"},
+                                        "run_command": {"command": "summon glc:square ~2 ~ ~"}
+                                    }
+                                ]
+                            },
+                            {
+                                "filters": {
+                                    "all_of": [
+                                        {"test": "has_component", "operator": "!=", "value": "minecraft:trusting"},
+                                        {"test": "has_component", "value": "minecraft:genetics"}
+                                    ]
+                                },
+                                "sequence": [
+                                    {"run_command": {"command": "summon glc:square ~-1 ~ ~"}},
+                                    {
+                                        "filters": {"test": "has_component", "operator": "!=", "value": "minecraft:giveable"},
+                                        "run_command": {"command": "summon glc:square ~-2 ~ ~"}
+                                    }
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        "filters": [ {"test": "is_family", "value": "rook"} ],
+                        "sequence": [
+                            {"run_command": {"command": "summon glc:square ~ ~ ~-1"}},
+                            {"run_command": {"command": "summon glc:square ~ ~ ~-2"}},
+                            {"run_command": {"command": "summon glc:square ~ ~ ~-3"}},
+                            {"run_command": {"command": "summon glc:square ~ ~ ~-4"}},
+                            {"run_command": {"command": "summon glc:square ~ ~ ~-5"}},
+                            {"run_command": {"command": "summon glc:square ~ ~ ~-6"}},
+                            {"run_command": {"command": "summon glc:square ~ ~ ~-7"}},
+                            {"run_command": {"command": "summon glc:square ~ ~ ~1"}},
+                            {"run_command": {"command": "summon glc:square ~ ~ ~2"}},
+                            {"run_command": {"command": "summon glc:square ~ ~ ~3"}},
+                            {"run_command": {"command": "summon glc:square ~ ~ ~4"}},
+                            {"run_command": {"command": "summon glc:square ~ ~ ~5"}},
+                            {"run_command": {"command": "summon glc:square ~ ~ ~6"}},
+                            {"run_command": {"command": "summon glc:square ~ ~ ~7"}},
+                            {"run_command": {"command": "summon glc:square ~-1 ~ ~"}},
+                            {"run_command": {"command": "summon glc:square ~-2 ~ ~"}},
+                            {"run_command": {"command": "summon glc:square ~-3 ~ ~"}},
+                            {"run_command": {"command": "summon glc:square ~-4 ~ ~"}},
+                            {"run_command": {"command": "summon glc:square ~-5 ~ ~"}},
+                            {"run_command": {"command": "summon glc:square ~-6 ~ ~"}},
+                            {"run_command": {"command": "summon glc:square ~-7 ~ ~"}},
+                            {"run_command": {"command": "summon glc:square ~1 ~ ~"}},
+                            {"run_command": {"command": "summon glc:square ~2 ~ ~"}},
+                            {"run_command": {"command": "summon glc:square ~3 ~ ~"}},
+                            {"run_command": {"command": "summon glc:square ~4 ~ ~"}},
+                            {"run_command": {"command": "summon glc:square ~5 ~ ~"}},
+                            {"run_command": {"command": "summon glc:square ~6 ~ ~"}},
+                            {"run_command": {"command": "summon glc:square ~7 ~ ~"}}
+                            
+                        ]
+                    },
+                    {
+                        "filters": [ {"test": "is_family", "value": "knight"} ],
+                        "sequence": [
+                            {"run_command": {"command": "summon glc:square ~1 ~ ~2"}},
+                            {"run_command": {"command": "summon glc:square ~-1 ~ ~2"}},
+                            {"run_command": {"command": "summon glc:square ~2 ~ ~1"}},
+                            {"run_command": {"command": "summon glc:square ~2 ~ ~-1"}},
+                            {"run_command": {"command": "summon glc:square ~-2 ~ ~1"}},
+                            {"run_command": {"command": "summon glc:square ~-2 ~ ~-1"}},
+                            {"run_command": {"command": "summon glc:square ~1 ~ ~-2"}},
+                            {"run_command": {"command": "summon glc:square ~-1 ~ ~-2"}}
+                        ]
+                    },
+                    {
+                        "filters": [ {"test": "is_family", "value": "bishop"} ],
+                        "sequence": [
+                            {"run_command": {"command": "summon glc:square ~-1 ~ ~-1"}},
+                            {"run_command": {"command": "summon glc:square ~-2 ~ ~-2"}},
+                            {"run_command": {"command": "summon glc:square ~-3 ~ ~-3"}},
+                            {"run_command": {"command": "summon glc:square ~-4 ~ ~-4"}},
+                            {"run_command": {"command": "summon glc:square ~-5 ~ ~-5"}},
+                            {"run_command": {"command": "summon glc:square ~-6 ~ ~-6"}},
+                            {"run_command": {"command": "summon glc:square ~-7 ~ ~-7"}},
+
+                            {"run_command": {"command": "summon glc:square ~1 ~ ~1"}},
+                            {"run_command": {"command": "summon glc:square ~2 ~ ~2"}},
+                            {"run_command": {"command": "summon glc:square ~3 ~ ~3"}},
+                            {"run_command": {"command": "summon glc:square ~4 ~ ~4"}},
+                            {"run_command": {"command": "summon glc:square ~5 ~ ~5"}},
+                            {"run_command": {"command": "summon glc:square ~6 ~ ~6"}},
+                            {"run_command": {"command": "summon glc:square ~7 ~ ~7"}},
+
+                            {"run_command": {"command": "summon glc:square ~-1 ~ ~1"}},
+                            {"run_command": {"command": "summon glc:square ~-2 ~ ~2"}},
+                            {"run_command": {"command": "summon glc:square ~-3 ~ ~3"}},
+                            {"run_command": {"command": "summon glc:square ~-4 ~ ~4"}},
+                            {"run_command": {"command": "summon glc:square ~-5 ~ ~5"}},
+                            {"run_command": {"command": "summon glc:square ~-6 ~ ~6"}},
+                            {"run_command": {"command": "summon glc:square ~-7 ~ ~7"}},
+
+                            {"run_command": {"command": "summon glc:square ~1 ~ ~-1"}},
+                            {"run_command": {"command": "summon glc:square ~2 ~ ~-2"}},
+                            {"run_command": {"command": "summon glc:square ~3 ~ ~-3"}},
+                            {"run_command": {"command": "summon glc:square ~4 ~ ~-4"}},
+                            {"run_command": {"command": "summon glc:square ~5 ~ ~-5"}},
+                            {"run_command": {"command": "summon glc:square ~6 ~ ~-6"}},
+                            {"run_command": {"command": "summon glc:square ~7 ~ ~-7"}}
+                        ]
+                    },
+                    {
+                        "filters": [ {"test": "is_family", "value": "queen"} ],
+                        "sequence": [
+                            {"run_command": {"command": "summon glc:square ~ ~ ~-1"}},
+                            {"run_command": {"command": "summon glc:square ~ ~ ~-2"}},
+                            {"run_command": {"command": "summon glc:square ~ ~ ~-3"}},
+                            {"run_command": {"command": "summon glc:square ~ ~ ~-4"}},
+                            {"run_command": {"command": "summon glc:square ~ ~ ~-5"}},
+                            {"run_command": {"command": "summon glc:square ~ ~ ~-6"}},
+                            {"run_command": {"command": "summon glc:square ~ ~ ~-7"}},
+                            {"run_command": {"command": "summon glc:square ~ ~ ~1"}},
+                            {"run_command": {"command": "summon glc:square ~ ~ ~2"}},
+                            {"run_command": {"command": "summon glc:square ~ ~ ~3"}},
+                            {"run_command": {"command": "summon glc:square ~ ~ ~4"}},
+                            {"run_command": {"command": "summon glc:square ~ ~ ~5"}},
+                            {"run_command": {"command": "summon glc:square ~ ~ ~6"}},
+                            {"run_command": {"command": "summon glc:square ~ ~ ~7"}},
+                            {"run_command": {"command": "summon glc:square ~-1 ~ ~"}},
+                            {"run_command": {"command": "summon glc:square ~-2 ~ ~"}},
+                            {"run_command": {"command": "summon glc:square ~-3 ~ ~"}},
+                            {"run_command": {"command": "summon glc:square ~-4 ~ ~"}},
+                            {"run_command": {"command": "summon glc:square ~-5 ~ ~"}},
+                            {"run_command": {"command": "summon glc:square ~-6 ~ ~"}},
+                            {"run_command": {"command": "summon glc:square ~-7 ~ ~"}},
+                            {"run_command": {"command": "summon glc:square ~1 ~ ~"}},
+                            {"run_command": {"command": "summon glc:square ~2 ~ ~"}},
+                            {"run_command": {"command": "summon glc:square ~3 ~ ~"}},
+                            {"run_command": {"command": "summon glc:square ~4 ~ ~"}},
+                            {"run_command": {"command": "summon glc:square ~5 ~ ~"}},
+                            {"run_command": {"command": "summon glc:square ~6 ~ ~"}},
+                            {"run_command": {"command": "summon glc:square ~7 ~ ~"}},
+                            
+                            {"run_command": {"command": "summon glc:square ~-1 ~ ~-1"}},
+                            {"run_command": {"command": "summon glc:square ~-2 ~ ~-2"}},
+                            {"run_command": {"command": "summon glc:square ~-3 ~ ~-3"}},
+                            {"run_command": {"command": "summon glc:square ~-4 ~ ~-4"}},
+                            {"run_command": {"command": "summon glc:square ~-5 ~ ~-5"}},
+                            {"run_command": {"command": "summon glc:square ~-6 ~ ~-6"}},
+                            {"run_command": {"command": "summon glc:square ~-7 ~ ~-7"}},
+
+                            {"run_command": {"command": "summon glc:square ~1 ~ ~1"}},
+                            {"run_command": {"command": "summon glc:square ~2 ~ ~2"}},
+                            {"run_command": {"command": "summon glc:square ~3 ~ ~3"}},
+                            {"run_command": {"command": "summon glc:square ~4 ~ ~4"}},
+                            {"run_command": {"command": "summon glc:square ~5 ~ ~5"}},
+                            {"run_command": {"command": "summon glc:square ~6 ~ ~6"}},
+                            {"run_command": {"command": "summon glc:square ~7 ~ ~7"}},
+
+                            {"run_command": {"command": "summon glc:square ~-1 ~ ~1"}},
+                            {"run_command": {"command": "summon glc:square ~-2 ~ ~2"}},
+                            {"run_command": {"command": "summon glc:square ~-3 ~ ~3"}},
+                            {"run_command": {"command": "summon glc:square ~-4 ~ ~4"}},
+                            {"run_command": {"command": "summon glc:square ~-5 ~ ~5"}},
+                            {"run_command": {"command": "summon glc:square ~-6 ~ ~6"}},
+                            {"run_command": {"command": "summon glc:square ~-7 ~ ~7"}},
+
+                            {"run_command": {"command": "summon glc:square ~1 ~ ~-1"}},
+                            {"run_command": {"command": "summon glc:square ~2 ~ ~-2"}},
+                            {"run_command": {"command": "summon glc:square ~3 ~ ~-3"}},
+                            {"run_command": {"command": "summon glc:square ~4 ~ ~-4"}},
+                            {"run_command": {"command": "summon glc:square ~5 ~ ~-5"}},
+                            {"run_command": {"command": "summon glc:square ~6 ~ ~-6"}},
+                            {"run_command": {"command": "summon glc:square ~7 ~ ~-7"}}
+                        ]
+                    },
+                    {
+                        "filters": [ {"test": "is_family", "value": "king"} ],
+                        "sequence": [
+                            {"run_command": {"command": "summon glc:square ~1 ~ ~-1"}},
+                            {"run_command": {"command": "summon glc:square ~1 ~ ~"}},
+                            {"run_command": {"command": "summon glc:square ~1 ~ ~1"}},
+                            {"run_command": {"command": "summon glc:square ~ ~ ~1"}},
+                            {"run_command": {"command": "summon glc:square ~-1 ~ ~1"}},
+                            {"run_command": {"command": "summon glc:square ~-1 ~ ~"}},
+                            {"run_command": {"command": "summon glc:square ~-1 ~ ~-1"}},
+                            {"run_command": {"command": "summon glc:square ~ ~ ~-1"}}
+                        ]
+                    }
+                ]
+            }
+        }   
     }
 }

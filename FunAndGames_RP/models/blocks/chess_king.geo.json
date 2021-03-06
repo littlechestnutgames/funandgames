@@ -12,7 +12,7 @@
 			},
 			"bones": [
 				{
-					"name": "body",
+					"name": "head",
 					"pivot": [0, 0, 0],
 					"cubes": [
 						{"origin": [-4, 0, -4], "size": [8, 1, 8], "uv": [0, 0]},

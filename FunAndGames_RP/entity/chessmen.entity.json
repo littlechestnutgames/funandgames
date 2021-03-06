@@ -26,6 +26,18 @@
           "queen": "geometry.chess_queen",
           "king": "geometry.chess_king"
         },
+        "animations": {
+          "controller": "controller.animation.chessmen.game",
+          "float": "animation.chessmen.select_float"
+        },
+        "scripts": {
+          "pre_animation": [
+            "variable.is_selected = query.mark_variant > 1;"
+          ],
+          "animate": [
+            "controller"
+          ]
+        },
         "render_controllers": [ "controller.render.chessmen" ]
       }
     }

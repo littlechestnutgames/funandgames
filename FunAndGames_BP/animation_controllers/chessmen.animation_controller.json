@@ -1,0 +1,22 @@
+{
+    "format_version": "1.10.0",
+    "animation_controllers": {
+        "controller.animation.chessmen.game_bp": {
+            "initial_state": "default",
+            "states": {
+                "default": {
+                    "transitions": [ {"selected": "query.mark_variant > 1"} ],
+                    "on_entry": [
+                    ]
+                },
+                "selected": {
+                    "transitions": [ {"default": "query.mark_variant < 2"} ],
+                    "on_entry": [
+                        "/particle minecraft:crop_growth_emitter ~ ~2 ~"
+                    ],
+                    "on_exit": [ "/particle minecraft:basic_smoke_particle ~ ~1 ~" ]
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,12 @@
+{
+   "format_version": "1.16.0",
+   "resource_pack_name" : "MagicalLands",
+   "texture_data" : {
+      "chesswand": {
+        "textures": [
+	         "textures/items/chesswand"
+	      ]
+      }
+   },
+   "texture_name" : "atlas.items"
+}

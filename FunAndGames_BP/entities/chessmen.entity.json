@@ -329,6 +329,7 @@
             },
             "moved": {
                 "sequence": [
+                    {"run_command": {"command": "kill @e[type=glc:chessmen,r=0,tag=!selected]"}},
                     {"run_command": {"command": "event entity @s deselect"}},
                     {
                         "add": {

@@ -3,7 +3,7 @@
     "minecraft:block": {
         "description": {
             "identifier": "glc:black_chess_pawn",
-            "is_experimental": false
+            "is_experimental": true
         },
         "components": {
             "minecraft:geometry" : "geometry.chess_pawn",

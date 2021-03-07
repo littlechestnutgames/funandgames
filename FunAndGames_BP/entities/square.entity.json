@@ -31,6 +31,12 @@
             },
             "minecraft:conditional_bandwidth_optimization": {}
         },
+        "minecraft:damage_sensor": {
+            "triggers": {
+                "cause": "all",
+                "deals_damage": false
+            }
+        },
         "events": {
             "force_despawn": {
                 "add": { "component_groups": ["despawn"] }

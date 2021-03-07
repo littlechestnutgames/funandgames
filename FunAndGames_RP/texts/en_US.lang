@@ -11,3 +11,4 @@ tile.glc:black_chess_king.name=Black King
 tile.glc:white_chess_queen.name=White Queen
 tile.glc:black_chess_queen.name=Black Queen
 entity.glc:chessmen.name=Chess Piece
+item.glc:chessboard_wand=Chess Board Placer

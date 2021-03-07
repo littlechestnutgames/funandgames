@@ -3,7 +3,7 @@
     "minecraft:block": {
         "description": {
             "identifier": "glc:white_chess_rook",
-            "is_experimental": false
+            "is_experimental": true
         },
         "components": {
             "minecraft:geometry" : "geometry.chess_rook",

@@ -1,0 +1,16 @@
+{
+    "format_version": "1.10.0",
+    "minecraft:client_entity": {
+      "description": {
+        "identifier": "glc:border",
+        "materials": { "default": "skeleton" },
+        "textures": {
+          "default": "textures/blocks/border"
+        },
+        "geometry": {
+          "default": "geometry.square"
+        },
+        "render_controllers": [ "controller.render.square" ]
+      }
+    }
+  }

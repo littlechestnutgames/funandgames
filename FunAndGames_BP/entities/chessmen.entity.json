@@ -72,7 +72,7 @@
                     "interactions": [
                         {
                             "interact_text": "Select",
-                            "on_interact": { "event": "select" }
+                            "on_interact": { "event": "select_white" }
                         }
                     ]
                 },
@@ -83,7 +83,7 @@
                     "interactions": [
                         {
                             "interact_text": "Select",
-                            "on_interact": { "event": "select" }
+                            "on_interact": { "event": "select_black" }
                         }
                     ]
                 },
@@ -375,6 +375,16 @@
                     }
                 ]
             },
+            "select_white": {
+                "sequence": [
+                    {"run_command": {"command": "event entity @s select"}}
+                ]
+            },
+            "select_black": {
+                "sequence": [
+                    {"run_command": {"command": "event entity @s select"}}
+                ]
+            },
             "select": {
                 "sequence": [
                     {
@@ -626,6 +636,9 @@
                             {"run_command": {"command": "summon glc:square ~-1 ~ ~-1"}},
                             {"run_command": {"command": "summon glc:square ~ ~ ~-1"}}
                         ]
+                    },
+                    {
+                        "run_command": {"command": "event entity @e[type=glc:border,r=8] clip_board"}
                     }
                 ]
             }

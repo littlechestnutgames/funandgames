@@ -1,0 +1,62 @@
+{
+    "format_version": "1.16.100",
+    "minecraft:entity": {
+        "description": {
+            "identifier": "glc:border",
+            "is_summonable": true
+        },
+        "component_groups": {
+            "despawn": {
+                "minecraft:despawn": {
+                    "filters": {"test": "is_visible", "value": true}
+                }
+            }
+        },
+        "components": {
+            "minecraft:health": {
+                "value": 1,
+                "max": 1
+            },
+            "minecraft:pushable": {
+                "is_pushable": false,
+                "is_pushable_by_piston": false
+            },
+            "minecraft:conditional_bandwidth_optimization": {}
+        },
+        "minecraft:damage_sensor": {
+            "triggers": {
+                "cause": "all",
+                "deals_damage": false
+            }
+        },
+        "events": {
+            "force_despawn": {
+                "add": { "component_groups": ["despawn"] }
+            },
+            "clip_board": {
+                "sequence": [
+                    {
+                        "run_command": {
+                            "command": "execute @s ~-4.5 ~0.1 ~-4.5 event entity @e[type=glc:square,dx=-7,dz=15] force_despawn"
+                        }
+                    },
+                    {
+                        "run_command": {
+                            "command": "execute @s ~-4.5 ~0.1 ~4.5 event entity @e[type=glc:square,dx=15,dz=7] force_despawn"
+                        }
+                    },
+                    {
+                        "run_command": {
+                            "command": "execute @s ~4.5 ~0.1 ~4.5 event entity @e[type=glc:square,dx=7,dz=-15] force_despawn"
+                        }
+                    },
+                    {
+                        "run_command": {
+                            "command": "execute @s ~4.5 ~0.1 ~-4.5 event entity @e[type=glc:square,dx=-15,dz=-7] force_despawn"
+                        }
+                    }
+                ]
+            }
+        }
+    }
+}

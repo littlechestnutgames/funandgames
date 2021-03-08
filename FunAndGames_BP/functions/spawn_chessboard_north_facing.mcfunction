@@ -1,4 +1,8 @@
 event entity @e[type=glc:chessmen,r=32] force_despawn
+event entity @e[type=glc:square,r=32] force_despawn
+event entity @e[type=glc:border,r=32] force_despawn
+summon glc:border ~3.5 ~0.4 ~-4.5
+event entity @e[type=glc:chessmen,r=32] force_despawn
 summon glc:chessmen ~ ~0.5 ~-1 make_white_rook
 summon glc:chessmen ~1 ~0.5 ~-1 make_white_knight
 summon glc:chessmen ~2 ~0.5 ~-1 make_white_bishop

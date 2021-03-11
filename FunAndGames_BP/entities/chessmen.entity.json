@@ -76,7 +76,7 @@
                         }
                     ]
                 },
-                "minecraft:mark_variant": { "value": 0}
+                "minecraft:mark_variant": { "value": 0 }
             },
             "black": {
                 "minecraft:interact": {
@@ -87,7 +87,7 @@
                         }
                     ]
                 },
-                "minecraft:mark_variant": { "value": 1}
+                "minecraft:mark_variant": { "value": 1 }
             },
             "selected_white": {
                 "minecraft:interact": {
@@ -98,7 +98,7 @@
                         }
                     ]
                 },
-                "minecraft:mark_variant": { "value": 2}
+                "minecraft:mark_variant": { "value": 2 }
             },
             "selected_black": {
                 "minecraft:interact": {
@@ -422,11 +422,39 @@
                                     ]
                                 },
                                 "sequence": [
+                                    // Northward - Move square
                                     {"run_command": {"command": "summon glc:square ~ ~ ~-1"}},
+
+                                    // Northward - Despawn if the square is occupied.
+                                    {"run_command": {"command": "execute @e[x=~,y=~,z=~-1,type=glc:chessmen,r=0.5] ~ ~ ~ event entity @e[type=glc:square,r=0] force_despawn"}},
+
+                                    // Northwestward - Attack Square, appears if square is occupied.
+                                    {"run_command": {"command": "execute @e[x=~-1,y=~,z=~-1,type=glc:chessmen,r=0.5] ~ ~ ~ summon glc:square ~ ~ ~"}},
+
+                                    // Northeastward - Attack Square, appears if square is occupied.
+                                    {"run_command": {"command": "execute @e[x=~1,y=~,z=~-1,type=glc:chessmen,r=0.5] ~ ~ ~ summon glc:square ~ ~ ~"}},
+
+                                    // Northward - Initial move only, second square space.
                                     {
                                         "filters": {"test": "has_component", "operator": "!=", "value": "minecraft:giveable"},
-                                        "run_command": {"command": "summon glc:square ~ ~ ~-2"}
-                                    }
+                                        "sequence": [
+                                            // Place the second square. This has a special event attached to let the square know to fire an event preparing for a possible en passant.
+                                            {"run_command": {"command": "summon glc:square ~ ~ ~-2 mark_double_move"}}
+                                        ]
+                                    },
+
+                                    // Remove the second square if a piece is occupying the second square space.
+                                    {"run_command": {"command": "execute @e[type=glc:chessmen,z=~-2,r=0.5] ~ ~ ~ event entity @e[type=glc:square,r=0] force_despawn"}},
+
+                                    // Remove the second square if a piece is occupying the space in front of the pawn.
+                                    {"run_command": {"command": "execute @e[type=glc:chessmen,z=~-1,r=0.5] ~ ~ ~ event entity @e[type=glc:square,z=~-1,r=0] force_despawn"}},
+
+                                    // Remove the first square if a piece is occupying the space in front of the pawn.
+                                    {"run_command": {"command": "execute @e[type=glc:chessmen,z=~-1,r=0.5] ~ ~ ~ event entity @e[type=glc:square,r=0] force_despawn"}},
+
+                                    // If the opposing piece has just done a double move and is beside the selected pawn.
+                                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-1,tag=double_move,r=0.5] ~ ~ ~ summon glc:square ~ ~ ~-1 en_passant_north"}},
+                                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~1,tag=double_move,r=0.5] ~ ~ ~ summon glc:square ~ ~ ~-1 en_passant_north"}}
                                 ]
                             },
                             {
@@ -437,11 +465,39 @@
                                     ]
                                 },
                                 "sequence": [
+                                    // Southrthward - Move square
                                     {"run_command": {"command": "summon glc:square ~ ~ ~1"}},
+                                
+                                    // Southward - Despawn if the square is occupied.
+                                    {"run_command": {"command": "execute @e[x=~,y=~,z=~1,type=glc:chessmen,r=0.5] ~ ~ ~ event entity @e[type=glc:square,r=0] force_despawn"}},
+                                
+                                    // Southwestward - Attack Square, appears if square is occupied.
+                                    {"run_command": {"command": "execute @e[x=~-1,y=~,z=~1,type=glc:chessmen,r=0.5] ~ ~ ~ summon glc:square ~ ~ ~"}},
+                                
+                                    // Southeastward - Attack Square, appears if square is occupied.
+                                    {"run_command": {"command": "execute @e[x=~1,y=~,z=~1,type=glc:chessmen,r=0.5] ~ ~ ~ summon glc:square ~ ~ ~"}},
+                                
+                                    // Southward - Initial move only, second square space.
                                     {
                                         "filters": {"test": "has_component", "operator": "!=", "value": "minecraft:giveable"},
-                                        "run_command": {"command": "summon glc:square ~ ~ ~2"}
-                                    }
+                                        "sequence": [
+                                            // Place the second square. This has a special event attached to let the square know to fire an event preparing for a possible en passant.
+                                            {"run_command": {"command": "summon glc:square ~ ~ ~2 mark_double_move"}}
+                                        ]
+                                    },
+
+                                    // Remove the second square if a piece is occupying the second square space.
+                                    {"run_command": {"command": "execute @e[type=glc:chessmen,z=~2,r=0.5] ~ ~ ~ event entity @e[type=glc:square,r=0] force_despawn"}},
+
+                                    // Remove the second square if a piece is occupying the space in front of the pawn.
+                                    {"run_command": {"command": "execute @e[type=glc:chessmen,z=~1,r=0.5] ~ ~ ~ event entity @e[type=glc:square,z=~1,r=0] force_despawn"}},
+
+                                    // Remove the first square if a piece is occupying the space in front of the pawn.
+                                    {"run_command": {"command": "execute @e[type=glc:chessmen,z=~1,r=0.5] ~ ~ ~ event entity @e[type=glc:square,r=0] force_despawn"}},
+                                    
+                                    // If the opposing piece has just done a double move and is beside the selected pawn.
+                                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-1,tag=double_move,r=0.5] ~ ~ ~ summon glc:square ~ ~ ~1 en_passant_south"}},
+                                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~1,tag=double_move,r=0.5] ~ ~ ~ summon glc:square ~ ~ ~1 en_passant_south"}}
                                 ]
                             },
                             {
@@ -452,11 +508,39 @@
                                     ]
                                 },
                                 "sequence": [
+                                    // Eastward - Move square
                                     {"run_command": {"command": "summon glc:square ~1 ~ ~"}},
+                                
+                                    // Eastward - Despawn if the square is occupied.
+                                    {"run_command": {"command": "execute @e[x=~1,y=~,z=~,type=glc:chessmen,r=0.5] ~ ~ ~ event entity @e[type=glc:square,r=0] force_despawn"}},
+                                
+                                    // Southeastward - Attack Square, appears if square is occupied.
+                                    {"run_command": {"command": "execute @e[x=~1,y=~,z=~1,type=glc:chessmen,r=0.5] ~ ~ ~ summon glc:square ~ ~ ~"}},
+                                
+                                    // Northeastward - Attack Square, appears if square is occupied.
+                                    {"run_command": {"command": "execute @e[x=~1,y=~,z=~-1,type=glc:chessmen,r=0.5] ~ ~ ~ summon glc:square ~ ~ ~"}},
+                                
+                                    // Eastward - Initial move only, second square space.
                                     {
                                         "filters": {"test": "has_component", "operator": "!=", "value": "minecraft:giveable"},
-                                        "run_command": {"command": "summon glc:square ~2 ~ ~"}
-                                    }
+                                        "sequence": [
+                                            // Place the second square. This has a special event attached to let the square know to fire an event preparing for a possible en passant.
+                                            {"run_command": {"command": "summon glc:square ~2 ~ ~ mark_double_move"}}
+                                        ]
+                                    },
+
+                                    // Remove the second square if a piece is occupying the second square space.
+                                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~2,r=0.5] ~ ~ ~ event entity @e[type=glc:square,r=0] force_despawn"}},
+
+                                    // Remove the second square if a piece is occupying the space in front of the pawn.
+                                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~1,r=0.5] ~ ~ ~ event entity @e[type=glc:square,x=~1,r=0] force_despawn"}},
+
+                                    // Remove the first square if a piece is occupying the space in front of the pawn.
+                                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~1,r=0.5] ~ ~ ~ event entity @e[type=glc:square,r=0] force_despawn"}},
+                                    
+                                    // If the opposing piece has just done a double move and is beside the selected pawn.
+                                    {"run_command": {"command": "execute @e[type=glc:chessmen,z=~-1,tag=double_move,r=0.5] ~ ~ ~ summon glc:square ~1 ~ ~ en_passant_east"}},
+                                    {"run_command": {"command": "execute @e[type=glc:chessmen,z=~1,tag=double_move,r=0.5] ~ ~ ~ summon glc:square ~1 ~ ~ en_passant_east"}}
                                 ]
                             },
                             {
@@ -467,11 +551,39 @@
                                     ]
                                 },
                                 "sequence": [
+                                    // Westward - Move square
                                     {"run_command": {"command": "summon glc:square ~-1 ~ ~"}},
+                                
+                                    // Westward - Despawn if the square is occupied.
+                                    {"run_command": {"command": "execute @e[x=~-1,y=~,z=~,type=glc:chessmen,r=0.5] ~ ~ ~ event entity @e[type=glc:square,r=0] force_despawn"}},
+                                
+                                    // Southwestward - Attack Square, appears if square is occupied.
+                                    {"run_command": {"command": "execute @e[x=~-1,y=~,z=~1,type=glc:chessmen,r=0.5] ~ ~ ~ summon glc:square ~ ~ ~"}},
+                                
+                                    // Northwestward - Attack Square, appears if square is occupied.
+                                    {"run_command": {"command": "execute @e[x=~-1,y=~,z=~-1,type=glc:chessmen,r=0.5] ~ ~ ~ summon glc:square ~ ~ ~"}},
+                                
+                                    // Westward - Initial move only, second square space.
                                     {
                                         "filters": {"test": "has_component", "operator": "!=", "value": "minecraft:giveable"},
-                                        "run_command": {"command": "summon glc:square ~-2 ~ ~"}
-                                    }
+                                        "sequence": [
+                                            // Place the second square. This has a special event attached to let the square know to fire an event preparing for a possible en passant.
+                                            {"run_command": {"command": "summon glc:square ~-2 ~ ~ mark_double_move"}}
+                                        ]
+                                    },
+
+                                    // Remove the second square if a piece is occupying the second square space.
+                                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-2,r=0.5] ~ ~ ~ event entity @e[type=glc:square,r=0] force_despawn"}},
+
+                                    // Remove the second square if a piece is occupying the space in front of the pawn.
+                                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-1,r=0.5] ~ ~ ~ event entity @e[type=glc:square,x=~-1,r=0] force_despawn"}},
+
+                                    // Remove the first square if a piece is occupying the space in front of the pawn.
+                                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-1,r=0.5] ~ ~ ~ event entity @e[type=glc:square,r=0] force_despawn"}},
+                                    
+                                    // If the opposing piece has just done a double move and is beside the selected pawn.
+                                    {"run_command": {"command": "execute @e[type=glc:chessmen,z=~-1,tag=double_move,r=0.5] ~ ~ ~ summon glc:square ~-1 ~ ~ en_passant_west"}},
+                                    {"run_command": {"command": "execute @e[type=glc:chessmen,z=~1,tag=double_move,r=0.5] ~ ~ ~ summon glc:square ~-1 ~ ~ en_passant_west"}}
                                 ]
                             }
                         ]

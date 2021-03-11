@@ -3,12 +3,76 @@
     "minecraft:entity": {
         "description": {
             "identifier": "glc:square",
-            "is_summonable": true
+            "is_summonable": true,
+            "animations": {
+                "controller_bp": "controller.animation.sqaure.game_bp"
+              },
+      
+              "scripts": {
+                "pre_animation": [
+                ],
+                "animate": [
+                  "controller_bp"
+                ]
+              }
         },
         "component_groups": {
             "despawn": {
                 "minecraft:despawn": {
                     "filters": {"test": "is_visible", "value": true}
+                }
+            },
+            "mark_check_space": {
+                "minecraft:mark_variant": {"value": 1}
+            },
+            "double_move_interact": {
+                "minecraft:interact": {
+                    "interactions": [
+                        {
+                            "interact_text": "Move Here",
+                            "on_interact": { "event": "double_move" }
+                        }
+                    ]
+                }
+            },
+            "en_passant_north": {
+                "minecraft:interact": {
+                    "interactions": [
+                        {
+                            "interact_text": "En passant capture",
+                            "on_interact": { "event": "en_passant_capture_north" }
+                        }
+                    ]
+                }
+            },
+            "en_passant_south": {
+                "minecraft:interact": {
+                    "interactions": [
+                        {
+                            "interact_text": "En passant capture",
+                            "on_interact": { "event": "en_passant_capture_south" }
+                        }
+                    ]
+                }
+            },
+            "en_passant_east": {
+                "minecraft:interact": {
+                    "interactions": [
+                        {
+                            "interact_text": "En passant capture",
+                            "on_interact": { "event": "en_passant_capture_east" }
+                        }
+                    ]
+                }
+            },
+            "en_passant_west": {
+                "minecraft:interact": {
+                    "interactions": [
+                        {
+                            "interact_text": "En passant capture",
+                            "on_interact": { "event": "en_passant_capture_west" }
+                        }
+                    ]
                 }
             }
         },
@@ -43,6 +107,59 @@
             },
             "move_piece_here": {
                 "sequence": [
+                    {"run_command": {"command": "tag @e[type=glc:chessmen,tag=double_move] remove double_move"}},
+                    {"run_command": {"command": "tp @e[type=glc:chessmen,tag=selected] @s"}},
+                    {"run_command": {"command": "event entity @e[type=glc:chessmen,tag=selected] moved"}}
+                ]
+            },
+            "moved_piece": {
+            },
+            "mark_double_move": {
+                "add": {"component_groups": ["double_move_interact"]}
+            },
+            "double_move": {
+                "sequence": [
+                    {"run_command": {"command": "tp @e[type=glc:chessmen,tag=selected] @s"}},
+                    {"run_command": {"command": "tag @e[type=glc:chessmen,tag=selected] add double_move"}},
+                    {"run_command": {"command": "event entity @e[type=glc:chessmen,tag=selected] moved"}}
+                ]
+            },
+            "en_passant_north": {
+                "add": {"component_groups": ["en_passant_north"]}
+            },
+            "en_passant_south": {
+                "add": {"component_groups": ["en_passant_south"]}
+            },
+            "en_passant_east": {
+                "add": {"component_groups": ["en_passant_east"]}
+            },
+            "en_passant_west": {
+                "add": {"component_groups": ["en_passant_west"]}
+            },
+            "en_passant_capture_north": {
+                "sequence": [
+                    {"run_command": {"command": "kill @e[type=glc:chessmen,x=~,y=~,z=~1,r=0.5,tag=double_move]"}},
+                    {"run_command": {"command": "tp @e[type=glc:chessmen,tag=selected] @s"}},
+                    {"run_command": {"command": "event entity @e[type=glc:chessmen,tag=selected] moved"}}
+                ]
+            },
+            "en_passant_capture_south": {
+                "sequence": [
+                    {"run_command": {"command": "kill @e[type=glc:chessmen,x=~,y=~,z=~-1,r=0.5]"}},
+                    {"run_command": {"command": "tp @e[type=glc:chessmen,tag=selected] @s"}},
+                    {"run_command": {"command": "event entity @e[type=glc:chessmen,tag=selected] moved"}}
+                ]
+            },
+            "en_passant_capture_east": {
+                "sequence": [
+                    {"run_command": {"command": "kill @e[type=glc:chessmen,x=~-1,y=~,z=~,r=0.5]"}},
+                    {"run_command": {"command": "tp @e[type=glc:chessmen,tag=selected] @s"}},
+                    {"run_command": {"command": "event entity @e[type=glc:chessmen,tag=selected] moved"}}
+                ]
+            },
+            "en_passant_capture_west": {
+                "sequence": [
+                    {"run_command": {"command": "kill @e[type=glc:chessmen,x=~1,y=~,z=~,r=0.5]"}},
                     {"run_command": {"command": "tp @e[type=glc:chessmen,tag=selected] @s"}},
                     {"run_command": {"command": "event entity @e[type=glc:chessmen,tag=selected] moved"}}
                 ]

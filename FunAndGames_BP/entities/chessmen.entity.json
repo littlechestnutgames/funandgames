@@ -134,10 +134,50 @@
                 "minecraft:despawn": {
                     "filters": {"test": "is_visible", "value": true}
                 }
+            },
+            "left_rook": {
+                "minecraft:skin_id": {"value": 0},
+                "minecraft:type_family": { "family": [ "game_piece", "chessmen", "rook", "left"] }
+            },
+            "right_rook": {
+                "minecraft:skin_id": {"value": 1},
+                "minecraft:type_family": { "family": [ "game_piece", "chessmen", "rook", "right"] }
+            },
+            "target_left_rook": {
+                "minecraft:behavior.nearest_attackable_target": {
+                    "must_see": false,
+                    "must_reach": false,
+                    "within_radius": 4,
+                    "entity_types": [
+                        {"filters": {"all_of": [
+                            {"test":"has_component","operator": "!=","subject": "other","value": "minecraft:giveable"},
+                            {"test":"is_family","subject": "other", "value": "rook"},
+                            {"test":"is_family","subject": "other", "value": "left"}
+                        ]}}
+                    ]
+                }
+            },
+            "target_right_rook": {
+                "minecraft:behavior.nearest_attackable_target": {
+                    "must_see": false,
+                    "must_reach": false,
+                    "within_radius": 3,                    
+                    "entity_types": [
+                        {"filters": {"all_of": [
+                            {"test":"has_component","operator": "!=","subject": "other","value": "minecraft:giveable"},
+                            {"test":"is_family","subject": "other", "value": "rook"},
+                            {"test":"is_family","subject": "other", "value": "right"}
+                        ]}}
+                    ]
+                }
             }
         },
 
         "components": {
+            "minecraft:physics": {
+                "has_collision": false,
+                "has_gravity": false
+            },
             "minecraft:health": {
                 "value": 1,
                 "max": 1
@@ -163,25 +203,31 @@
         },
         "events": {
             "nothing": {},
+            
             "force_despawn": {
                 "add": { "component_groups": ["despawn"] }
             },
+
             "make_black_pawn": {"add": { "component_groups": [ "pawn", "black", "north" ] } },
             "make_black_rook": { "add": { "component_groups": [ "rook", "black", "north" ] } },
-
+            "make_black_left_rook": { "add": { "component_groups": [ "rook", "black", "north", "left_rook" ] } },
+            "make_black_right_rook": { "add": { "component_groups": [ "rook", "black", "north", "right_rook" ] } },
             "make_black_knight": {"add": { "component_groups": [ "knight", "black", "north" ] } },
             "make_black_bishop": { "add": { "component_groups": [ "bishop", "black", "north" ] } },
             "make_black_queen": { "add": { "component_groups": [ "queen", "black", "north" ] } },
             "make_black_king": { "add": { "component_groups": [ "king", "black", "north" ] } },
+
             "make_white_pawn": { "add": { "component_groups": [ "pawn", "white", "north" ] } },
-            "make_white_rook": { "add": { "component_groups": [ "rook", "white", "north" ] } },
+            "make_white_left_rook": { "add": { "component_groups": [ "rook", "white", "north", "left_rook" ] } },
+            "make_white_right_rook": { "add": { "component_groups": [ "rook", "white", "north", "right_rook" ] } },
             "make_white_knight": { "add": { "component_groups": [ "knight", "white", "north" ] } },
             "make_white_bishop": { "add": { "component_groups": [ "bishop", "white", "north" ] } },
             "make_white_queen": { "add": { "component_groups": [ "queen", "white", "north" ] } },
             "make_white_king": { "add": { "component_groups": [ "king", "white", "north" ] } },
 
             "make_black_pawn_south": {"add": { "component_groups": [ "pawn", "black", "south" ] } },
-            "make_black_rook_south": { "add": { "component_groups": [ "rook", "black", "south" ] } },
+            "make_black_left_rook_south": { "add": { "component_groups": [ "rook", "black", "south", "left_rook" ] } },
+            "make_black_right_rook_south": { "add": { "component_groups": [ "rook", "black", "south", "right_rook" ] } },
             "make_black_knight_south": {
                 "sequence": [
                     {"run_command": {"command": "tp @s ~ ~ ~ 180"}},
@@ -208,7 +254,8 @@
             },
 
             "make_white_pawn_south": { "add": { "component_groups": [ "pawn", "white", "south" ] } },
-            "make_white_rook_south": { "add": { "component_groups": [ "rook", "white", "south" ] } },
+            "make_white_left_rook_south": { "add": { "component_groups": [ "rook", "white", "south", "left_rook" ] } },
+            "make_white_right_rook_south": { "add": { "component_groups": [ "rook", "white", "south", "right_rook" ] } },
             "make_white_knight_south": {
                 "sequence": [
                     {"run_command": {"command": "tp @s ~ ~ ~ 180"}},
@@ -235,7 +282,8 @@
             },
 
             "make_black_pawn_east": {"add": { "component_groups": [ "pawn", "black", "east" ] } },
-            "make_black_rook_east": { "add": { "component_groups": [ "rook", "black", "east" ] } },
+            "make_black_left_rook_east": { "add": { "component_groups": [ "rook", "black", "east", "left_rook" ] } },
+            "make_black_right_rook_east": { "add": { "component_groups": [ "rook", "black", "east", "right_rook" ] } },
             "make_black_knight_east": {
                 "sequence": [
                     {"run_command": {"command": "tp @s ~ ~ ~ 90"}},
@@ -261,7 +309,8 @@
                 ]
             },
             "make_white_pawn_east": { "add": { "component_groups": [ "pawn", "white", "east" ] } },
-            "make_white_rook_east": { "add": { "component_groups": [ "rook", "white", "east" ] } },
+            "make_white_left_rook_east": { "add": { "component_groups": [ "rook", "white", "east", "left_rook" ] } },
+            "make_white_right_rook_east": { "add": { "component_groups": [ "rook", "white", "east", "right_rook" ] } },
             "make_white_knight_east": {
                 "sequence": [
                     {"run_command": {"command": "tp @s ~ ~ ~ 90"}},
@@ -288,7 +337,8 @@
             },
 
             "make_black_pawn_west": {"add": { "component_groups": [ "pawn", "black", "west" ] } },
-            "make_black_rook_west": { "add": { "component_groups": [ "rook", "black", "west" ] } },
+            "make_black_left_rook_west": { "add": { "component_groups": [ "rook", "black", "west", "left_rook" ] } },
+            "make_black_right_rook_west": { "add": { "component_groups": [ "rook", "black", "west", "right_rook" ] } },
             "make_black_knight_west": {
                 "sequence": [
                     {"run_command": {"command": "tp @s ~ ~ ~ -90"}},
@@ -314,7 +364,8 @@
                  ]
             },
             "make_white_pawn_west": { "add": { "component_groups": [ "pawn", "white", "west" ] } },
-            "make_white_rook_west": { "add": { "component_groups": [ "rook", "white", "west" ] } },
+            "make_white_left_rook_west": { "add": { "component_groups": [ "rook", "white", "west", "left_rook" ] } },
+            "make_white_right_rook_west": { "add": { "component_groups": [ "rook", "white", "west", "right_rook" ] } },
             "make_white_knight_west": {
                 "sequence": [
                     {"run_command": {"command": "tp @s ~ ~ ~ -90"}},
@@ -346,6 +397,40 @@
                     {
                         "add": {
                             "component_groups": [ "moved_piece" ]
+                        }
+                    }
+                ]
+            },
+
+            "remove_markers_under_white": {
+                "filters": {"test":"is_mark_variant","subject": "self", "value": 0},
+                "sequence": [
+                    {
+                        "filters": {"test": "is_mark_variant", "subject": "self", "value": 0},
+                        "run_command": {
+                            "command": "event entity @e[type=glc:square,r=0] force_despawn"
+                        }
+                    },
+                    {
+                        "filters": {"test":"is_mark_variant", "subject": "self", "value": 0},
+                        "run_command": {
+                            "command": "say Removing squares under white."
+                        }
+                    }
+                ]
+            },
+            "remove_markers_under_black": {
+                "filters": {"test":"is_mark_variant","subject": "self", "value": 1},
+                "sequence": [
+                    {
+                        "filters": {"test":"is_mark_variant","subject": "self", "value": 1},
+                        "run_command": {
+                            "command": "event entity @e[type=glc:square,r=0] force_despawn"
+                        }
+                    },
+                    {
+                        "run_command": {
+                            "command": "say Removing squares under black."
                         }
                     }
                 ]
@@ -518,7 +603,16 @@
                     {"run_command": {"command": "execute @e[type=glc:chessmen,x=~5,r=0.5] ~2 ~ ~ event entity @e[type=glc:square,r=0] force_despawn"}},
 
                     // If there exists a chess piece blocking from the sixth square of the selected piece, block the final square.
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~6,r=0.5] ~1 ~ ~ event entity @e[type=glc:square,r=0] force_despawn"}}
+                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~6,r=0.5] ~1 ~ ~ event entity @e[type=glc:square,r=0] force_despawn"}},
+
+                    {
+                        "filters": {"test": "is_mark_variant", "value": 0},
+                        "run_command": { "command": "event entity @e[type=glc:chessmen,r=32] remove_markers_under_white" }
+                    },
+                    {
+                        "filters": {"test": "is_mark_variant", "value": 1},
+                        "run_command": { "command": "event entity @e[type=glc:chessmen,r=32] remove_markers_under_black" }
+                    }
                 ]
             },
 
@@ -690,8 +784,23 @@
                     {"run_command": {"command": "execute @e[type=glc:chessmen,x=~5,z=~-5,r=0.5] ~2 ~ ~-2 event entity @e[type=glc:square,r=0] force_despawn"}},
 
                     // If there exists a chess piece blocking from the sixth square of the selected piece, block the final square.
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~6,z=~-6,r=0.5] ~1 ~ ~-1 event entity @e[type=glc:square,r=0] force_despawn"}}
+                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~6,z=~-6,r=0.5] ~1 ~ ~-1 event entity @e[type=glc:square,r=0] force_despawn"}},
+                    {
+                        "filters": {"test": "is_mark_variant", "value": 0},
+                        "run_command": { "command": "event entity @e[type=glc:chessmen,r=32] remove_markers_under_white" }
+                    },
+                    {
+                        "filters": {"test": "is_mark_variant", "value": 1},
+                        "run_command": { "command": "event entity @e[type=glc:chessmen,r=32] remove_markers_under_black" }
+                    }
                 ]
+            },
+
+            "add_white_tag": {
+                "run_command": {"command": "tag @s add white"}
+            },
+            "add_black_tag": {
+                "run_command": {"command": "tag @s add black"}
             },
 
             "clip_board": {
@@ -801,7 +910,15 @@
 
                                     // If the opposing piece has just done a double move and is beside the selected pawn.
                                     {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-1,tag=double_move,r=0.5] ~ ~ ~ summon glc:square ~ ~ ~-1 en_passant_north"}},
-                                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~1,tag=double_move,r=0.5] ~ ~ ~ summon glc:square ~ ~ ~-1 en_passant_north"}}
+                                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~1,tag=double_move,r=0.5] ~ ~ ~ summon glc:square ~ ~ ~-1 en_passant_north"}},
+                                    {
+                                        "filters": {"test": "is_mark_variant", "value": 0},
+                                        "run_command": { "command": "event entity @e[type=glc:chessmen,r=32] remove_markers_under_white" }
+                                    },
+                                    {
+                                        "filters": {"test": "is_mark_variant", "value": 1},
+                                        "run_command": { "command": "event entity @e[type=glc:chessmen,r=32] remove_markers_under_black" }
+                                    }
                                 ]
                             },
                             {
@@ -844,7 +961,15 @@
                                     
                                     // If the opposing piece has just done a double move and is beside the selected pawn.
                                     {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-1,tag=double_move,r=0.5] ~ ~ ~ summon glc:square ~ ~ ~1 en_passant_south"}},
-                                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~1,tag=double_move,r=0.5] ~ ~ ~ summon glc:square ~ ~ ~1 en_passant_south"}}
+                                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~1,tag=double_move,r=0.5] ~ ~ ~ summon glc:square ~ ~ ~1 en_passant_south"}},
+                                    {
+                                        "filters": {"test": "is_mark_variant", "value": 0},
+                                        "run_command": { "command": "event entity @e[type=glc:chessmen,r=32] remove_markers_under_white" }
+                                    },
+                                    {
+                                        "filters": {"test": "is_mark_variant", "value": 1},
+                                        "run_command": { "command": "event entity @e[type=glc:chessmen,r=32] remove_markers_under_black" }
+                                    }
                                 ]
                             },
                             {
@@ -887,7 +1012,15 @@
                                     
                                     // If the opposing piece has just done a double move and is beside the selected pawn.
                                     {"run_command": {"command": "execute @e[type=glc:chessmen,z=~-1,tag=double_move,r=0.5] ~ ~ ~ summon glc:square ~1 ~ ~ en_passant_east"}},
-                                    {"run_command": {"command": "execute @e[type=glc:chessmen,z=~1,tag=double_move,r=0.5] ~ ~ ~ summon glc:square ~1 ~ ~ en_passant_east"}}
+                                    {"run_command": {"command": "execute @e[type=glc:chessmen,z=~1,tag=double_move,r=0.5] ~ ~ ~ summon glc:square ~1 ~ ~ en_passant_east"}},
+                                    {
+                                        "filters": {"test": "is_mark_variant", "value": 0},
+                                        "run_command": { "command": "event entity @e[type=glc:chessmen,r=32] remove_markers_under_white" }
+                                    },
+                                    {
+                                        "filters": {"test": "is_mark_variant", "value": 1},
+                                        "run_command": { "command": "event entity @e[type=glc:chessmen,r=32] remove_markers_under_black" }
+                                    }
                                 ]
                             },
                             {
@@ -930,7 +1063,15 @@
                                     
                                     // If the opposing piece has just done a double move and is beside the selected pawn.
                                     {"run_command": {"command": "execute @e[type=glc:chessmen,z=~-1,tag=double_move,r=0.5] ~ ~ ~ summon glc:square ~-1 ~ ~ en_passant_west"}},
-                                    {"run_command": {"command": "execute @e[type=glc:chessmen,z=~1,tag=double_move,r=0.5] ~ ~ ~ summon glc:square ~-1 ~ ~ en_passant_west"}}
+                                    {"run_command": {"command": "execute @e[type=glc:chessmen,z=~1,tag=double_move,r=0.5] ~ ~ ~ summon glc:square ~-1 ~ ~ en_passant_west"}},
+                                    {
+                                        "filters": {"test": "is_mark_variant", "value": 0},
+                                        "run_command": { "command": "event entity @e[type=glc:chessmen,r=32] remove_markers_under_white" }
+                                    },
+                                    {
+                                        "filters": {"test": "is_mark_variant", "value": 1},
+                                        "run_command": { "command": "event entity @e[type=glc:chessmen,r=32] remove_markers_under_black" }
+                                    }
                                 ]
                             }
                         ]
@@ -949,7 +1090,15 @@
                             {"run_command": {"command": "summon glc:square ~-2 ~ ~1"}},
                             {"run_command": {"command": "summon glc:square ~-2 ~ ~-1"}},
                             {"run_command": {"command": "summon glc:square ~1 ~ ~-2"}},
-                            {"run_command": {"command": "summon glc:square ~-1 ~ ~-2"}}
+                            {"run_command": {"command": "summon glc:square ~-1 ~ ~-2"}},
+                            {
+                                "filters": {"test": "is_mark_variant", "value": 0},
+                                "run_command": { "command": "event entity @e[type=glc:chessmen,r=32] remove_markers_under_white" }
+                            },
+                            {
+                                "filters": {"test": "is_mark_variant", "value": 1},
+                                "run_command": { "command": "event entity @e[type=glc:chessmen,r=32] remove_markers_under_black" }
+                            }
                         ]
                     },
                     {
@@ -973,7 +1122,22 @@
                             {"run_command": {"command": "summon glc:square ~-1 ~ ~1"}},
                             {"run_command": {"command": "summon glc:square ~-1 ~ ~"}},
                             {"run_command": {"command": "summon glc:square ~-1 ~ ~-1"}},
-                            {"run_command": {"command": "summon glc:square ~ ~ ~-1"}}
+                            {"run_command": {"command": "summon glc:square ~ ~ ~-1"}},
+                            {
+                                "sequence": [
+                                    // Left side castle.
+                                    
+                                    // Right side castle here.
+                                ]
+                            },
+                            {
+                                "filters": {"test": "is_mark_variant", "value": 0},
+                                "run_command": { "command": "event entity @e[type=glc:chessmen,r=32] remove_markers_under_white" }
+                            },
+                            {
+                                "filters": {"test": "is_mark_variant", "value": 1},
+                                "run_command": { "command": "event entity @e[type=glc:chessmen,r=32] remove_markers_under_black" }
+                            }
                         ]
                     },
                     {

@@ -81,6 +81,10 @@
                 "value": 1,
                 "max": 1
             },
+            "minecraft:physics": {
+                "has_collision": false,
+                "has_gravity": false
+            },
             "minecraft:pushable": {
                 "is_pushable": false,
                 "is_pushable_by_piston": false
@@ -160,6 +164,62 @@
             "en_passant_capture_west": {
                 "sequence": [
                     {"run_command": {"command": "kill @e[type=glc:chessmen,x=~1,y=~,z=~,r=0.5]"}},
+                    {"run_command": {"command": "tp @e[type=glc:chessmen,tag=selected] @s"}},
+                    {"run_command": {"command": "event entity @e[type=glc:chessmen,tag=selected] moved"}}
+                ]
+            },
+            "castle_north_left": {
+                "sequence": [
+                    {"run_command": {"command": "execute @e[type=glc:chessmen,tag=selected] ~-4 ~ ~ tp @e[type=glc:chessmen,r=0,family=rook] ~3 ~ ~"}},
+                    {"run_command": {"command": "tp @e[type=glc:chessmen,tag=selected] @s"}},
+                    {"run_command": {"command": "event entity @e[type=glc:chessmen,tag=selected] moved"}}
+                ]
+            },
+            "castle_south_left": {
+                "sequence": [
+                    {"run_command": {"command": "execute @e[type=glc:chessmen,tag=selected] ~4 ~ ~ tp @e[type=glc:chessmen,r=0,family=rook] ~-3 ~ ~"}},
+                    {"run_command": {"command": "tp @e[type=glc:chessmen,tag=selected] @s"}},
+                    {"run_command": {"command": "event entity @e[type=glc:chessmen,tag=selected] moved"}}
+                ]
+            },
+            "castle_east_left": {
+                "sequence": [
+                    {"run_command": {"command": "execute @e[type=glc:chessmen,tag=selected] ~ ~ ~4 tp @e[type=glc:chessmen,r=0,family=rook] ~ ~ ~-3"}},
+                    {"run_command": {"command": "tp @e[type=glc:chessmen,tag=selected] @s"}},
+                    {"run_command": {"command": "event entity @e[type=glc:chessmen,tag=selected] moved"}}
+                ]
+            },
+            "castle_west_left": {
+                "sequence": [
+                    {"run_command": {"command": "execute @e[type=glc:chessmen,tag=selected] ~ ~ ~-4 tp @e[type=glc:chessmen,r=0,family=rook] ~ ~ ~3"}},
+                    {"run_command": {"command": "tp @e[type=glc:chessmen,tag=selected] @s"}},
+                    {"run_command": {"command": "event entity @e[type=glc:chessmen,tag=selected] moved"}}
+                ]
+            },
+            "castle_north_right": {
+                "sequence": [
+                    {"run_command": {"command": "execute @e[type=glc:chessmen,tag=selected] ~3 ~ ~ tp @e[type=glc:chessmen,r=0,family=rook] ~-2 ~ ~"}},
+                    {"run_command": {"command": "tp @e[type=glc:chessmen,tag=selected] @s"}},
+                    {"run_command": {"command": "event entity @e[type=glc:chessmen,tag=selected] moved"}}
+                ]
+            },
+            "castle_south_right": {
+                "sequence": [
+                    {"run_command": {"command": "execute @e[type=glc:chessmen,tag=selected] ~-3 ~ ~ tp @e[type=glc:chessmen,r=0,family=rook] ~2 ~ ~"}},
+                    {"run_command": {"command": "tp @e[type=glc:chessmen,tag=selected] @s"}},
+                    {"run_command": {"command": "event entity @e[type=glc:chessmen,tag=selected] moved"}}
+                ]
+            },
+            "castle_east_right": {
+                "sequence": [
+                    {"run_command": {"command": "execute @e[type=glc:chessmen,tag=selected] ~ ~ ~3 tp @e[type=glc:chessmen,r=0,family=rook] ~-2 ~ ~"}},
+                    {"run_command": {"command": "tp @e[type=glc:chessmen,tag=selected] @s"}},
+                    {"run_command": {"command": "event entity @e[type=glc:chessmen,tag=selected] moved"}}
+                ]
+            },
+            "castle_west_right": {
+                "sequence": [
+                    {"run_command": {"command": "execute @e[type=glc:chessmen,tag=selected] ~ ~ ~-3 tp @e[type=glc:chessmen,r=0,family=rook] ~2 ~ ~"}},
                     {"run_command": {"command": "tp @e[type=glc:chessmen,tag=selected] @s"}},
                     {"run_command": {"command": "event entity @e[type=glc:chessmen,tag=selected] moved"}}
                 ]

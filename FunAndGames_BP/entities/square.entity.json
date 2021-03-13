@@ -17,14 +17,17 @@
               }
         },
         "component_groups": {
+            "shown": {
+                "minecraft:skin_id": {"value": 1}
+            },
+
             "despawn": {
                 "minecraft:despawn": {
                     "filters": {"test": "is_visible", "value": true}
                 }
             },
-            "mark_check_space": {
-                "minecraft:mark_variant": {"value": 1}
-            },
+
+            // These are the second squares on a pawn's initial moves.
             "double_move_interact": {
                 "minecraft:interact": {
                     "interactions": [
@@ -35,6 +38,8 @@
                     ]
                 }
             },
+
+            // This is the attack square of a pawn who is executing an en passant capture facing the north.
             "en_passant_north": {
                 "minecraft:interact": {
                     "interactions": [
@@ -45,6 +50,8 @@
                     ]
                 }
             },
+
+            // This is the attack square of a pawn who is executing an en passant capture facing the south.
             "en_passant_south": {
                 "minecraft:interact": {
                     "interactions": [
@@ -55,6 +62,8 @@
                     ]
                 }
             },
+
+            // This is the attack square of a pawn who is executing an en passant capture facing the east.
             "en_passant_east": {
                 "minecraft:interact": {
                     "interactions": [
@@ -65,6 +74,8 @@
                     ]
                 }
             },
+
+            // This is the attack square of a pawn who is executing an en passant capture facing the west.
             "en_passant_west": {
                 "minecraft:interact": {
                     "interactions": [
@@ -74,9 +85,106 @@
                         }
                     ]
                 }
+            },
+
+            // This is the move square for a king executing a castle to the left while facing the north.
+            "castle_north_left_marked": {
+                "minecraft:interact": {
+                    "interactions": [
+                        {
+                            "interact_text": "Castle",
+                            "on_interact": { "event": "castle_north_left" }
+                        }
+                    ]
+                }
+            },
+
+            // This is the move square for a king executing a castle to the right while facing the north.
+            "castle_north_right_marked": {
+                "minecraft:interact": {
+                    "interactions": [
+                        {
+                            "interact_text": "Castle",
+                            "on_interact": { "event": "castle_north_right" }
+                        }
+                    ]
+                }
+            },
+
+            // This is the move square for a king executing a castle to the left while facing the south.
+            "castle_south_left_marked": {
+                "minecraft:interact": {
+                    "interactions": [
+                        {
+                            "interact_text": "Castle",
+                            "on_interact": { "event": "castle_south_left" }
+                        }
+                    ]
+                }
+            },
+
+            // This is the move square for a king executing a castle to the right while facing the south.
+            "castle_south_right_marked": {
+                "minecraft:interact": {
+                    "interactions": [
+                        {
+                            "interact_text": "Castle",
+                            "on_interact": { "event": "castle_south_right" }
+                        }
+                    ]
+                }
+            },
+
+            // This is the move square for a king executing a castle to the left while facing the east.
+            "castle_east_left_marked": {
+                "minecraft:interact": {
+                    "interactions": [
+                        {
+                            "interact_text": "Castle",
+                            "on_interact": { "event": "castle_east_left" }
+                        }
+                    ]
+                }
+            },
+
+            // This is the move square for a king executing a castle to the right while facing the east.
+            "castle_east_right_marked": {
+                "minecraft:interact": {
+                    "interactions": [
+                        {
+                            "interact_text": "Castle",
+                            "on_interact": { "event": "castle_east_right" }
+                        }
+                    ]
+                }
+            },
+
+            // This is the move square for a king executing a castle to the left while facing the west.
+            "castle_west_left_marked": {
+                "minecraft:interact": {
+                    "interactions": [
+                        {
+                            "interact_text": "Castle",
+                            "on_interact": { "event": "castle_west_left" }
+                        }
+                    ]
+                }
+            },
+
+            // This is the move square for a king executing a castle to the right while facing the west.
+            "castle_west_right_marked": {
+                "minecraft:interact": {
+                    "interactions": [
+                        {
+                            "interact_text": "Castle",
+                            "on_interact": { "event": "castle_west_right" }
+                        }
+                    ]
+                }
             }
         },
         "components": {
+            "minecraft:skin_id": {"value": 0},
             "minecraft:health": {
                 "value": 1,
                 "max": 1
@@ -89,6 +197,7 @@
                 "is_pushable": false,
                 "is_pushable_by_piston": false
             },
+            // This is a normal square' interact component, which can be overidden by component_groups.
             "minecraft:interact": {
                 "interactions": [
                     {
@@ -97,30 +206,45 @@
                     }
                 ]
             },
+
+            // Mobile users have the tendancy to accidentally hit stuff. Let's stop them from destroying move, attack, and check squares.
+            "minecraft:damage_sensor": {
+                "triggers": {
+                    "cause": "all",
+                    "deals_damage": false
+                }
+            },
             "minecraft:conditional_bandwidth_optimization": {}
         },
-        "minecraft:damage_sensor": {
-            "triggers": {
-                "cause": "all",
-                "deals_damage": false
-            }
-        },
         "events": {
+            // An event to change the skin of the square so it shows up.
+            "show": {
+                "add": {
+                    "component_groups": [ "shown" ]
+                }
+            },
+
+            // This event causes the entity to despawn.
             "force_despawn": {
                 "add": { "component_groups": ["despawn"] }
             },
+
+            // This is the normal movement of a piece. Teleport the piece here and fire off the moved event in the selected chess piece.
             "move_piece_here": {
                 "sequence": [
+                    // If anything moves after a pawn has taken a double movement, en passant capture can no longer happen to the pawn
                     {"run_command": {"command": "tag @e[type=glc:chessmen,tag=double_move] remove double_move"}},
                     {"run_command": {"command": "tp @e[type=glc:chessmen,tag=selected] @s"}},
                     {"run_command": {"command": "event entity @e[type=glc:chessmen,tag=selected] moved"}}
                 ]
             },
-            "moved_piece": {
-            },
+
+            // This is the special summon event that marks a square as a double move square.
             "mark_double_move": {
                 "add": {"component_groups": ["double_move_interact"]}
             },
+
+            // This pawn will be marked with the double_move tag and considered a target for en passant capture for the opponent's next turn.
             "double_move": {
                 "sequence": [
                     {"run_command": {"command": "tp @e[type=glc:chessmen,tag=selected] @s"}},
@@ -128,100 +252,131 @@
                     {"run_command": {"command": "event entity @e[type=glc:chessmen,tag=selected] moved"}}
                 ]
             },
+
+            // This event summon marks a square to fire an en passant capture to the north if it is chosen.
             "en_passant_north": {
                 "add": {"component_groups": ["en_passant_north"]}
             },
+
+            // This event summon marks a square to fire an en passant capture to the south if it is chosen.
             "en_passant_south": {
                 "add": {"component_groups": ["en_passant_south"]}
             },
+
+            // This event summon marks a square to fire an en passant capture to the east if it is chosen.
             "en_passant_east": {
                 "add": {"component_groups": ["en_passant_east"]}
             },
+
+            // This event summon marks a square to fire an en passant capture to the west if it is chosen.
             "en_passant_west": {
                 "add": {"component_groups": ["en_passant_west"]}
             },
+
+            // Perform an en passant capture to the north.
             "en_passant_capture_north": {
                 "sequence": [
                     {"run_command": {"command": "kill @e[type=glc:chessmen,x=~,y=~,z=~1,r=0.5,tag=double_move]"}},
-                    {"run_command": {"command": "tp @e[type=glc:chessmen,tag=selected] @s"}},
-                    {"run_command": {"command": "event entity @e[type=glc:chessmen,tag=selected] moved"}}
+                    {"trigger": "move_piece_here"}
                 ]
             },
+
+            // Perform an en passant capture to the south.
             "en_passant_capture_south": {
                 "sequence": [
                     {"run_command": {"command": "kill @e[type=glc:chessmen,x=~,y=~,z=~-1,r=0.5]"}},
-                    {"run_command": {"command": "tp @e[type=glc:chessmen,tag=selected] @s"}},
-                    {"run_command": {"command": "event entity @e[type=glc:chessmen,tag=selected] moved"}}
+                    {"trigger": "move_piece_here"}
                 ]
             },
+
+            // Perform an en passant capture to the east.
             "en_passant_capture_east": {
                 "sequence": [
                     {"run_command": {"command": "kill @e[type=glc:chessmen,x=~-1,y=~,z=~,r=0.5]"}},
-                    {"run_command": {"command": "tp @e[type=glc:chessmen,tag=selected] @s"}},
-                    {"run_command": {"command": "event entity @e[type=glc:chessmen,tag=selected] moved"}}
+                    {"trigger": "move_piece_here"}
                 ]
             },
+
+            // Perform an en passant capture to the west.
             "en_passant_capture_west": {
                 "sequence": [
                     {"run_command": {"command": "kill @e[type=glc:chessmen,x=~1,y=~,z=~,r=0.5]"}},
-                    {"run_command": {"command": "tp @e[type=glc:chessmen,tag=selected] @s"}},
-                    {"run_command": {"command": "event entity @e[type=glc:chessmen,tag=selected] moved"}}
+                    {"trigger": "move_piece_here"}
                 ]
             },
+
+            "mark_castle_north_left": {
+                "add": { "component_groups": ["castle_north_left_marked" ]}
+            },
+            "mark_castle_north_right": {
+                "add": { "component_groups": ["castle_north_right_marked" ]}
+            },
+            "mark_castle_south_left": {
+                "add": { "component_groups": ["castle_south_left_marked" ]}
+            },
+            "mark_castle_south_right": {
+                "add": { "component_groups": ["castle_south_right_marked" ]}
+            },
+
+            "mark_castle_east_left": {
+                "add": { "component_groups": ["castle_east_left_marked" ]}
+            },
+            "mark_castle_east_right": {
+                "add": { "component_groups": ["castle_east_right_marked" ]}
+            },
+            "mark_castle_west_left": {
+                "add": { "component_groups": ["castle_west_left_marked" ]}
+            },
+            "mark_castle_west_right": {
+                "add": { "component_groups": ["castle_west_right_marked" ]}
+            },
+
             "castle_north_left": {
                 "sequence": [
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,tag=selected] ~-4 ~ ~ tp @e[type=glc:chessmen,r=0,family=rook] ~3 ~ ~"}},
-                    {"run_command": {"command": "tp @e[type=glc:chessmen,tag=selected] @s"}},
-                    {"run_command": {"command": "event entity @e[type=glc:chessmen,tag=selected] moved"}}
+                    {"run_command": {"command": "execute @e[type=glc:chessmen,tag=selected] ~-4 ~ ~ tp @e[type=glc:chessmen,r=0.5,family=rook] ~3 ~ ~"}},
+                    {"trigger": "move_piece_here"}
                 ]
             },
             "castle_south_left": {
                 "sequence": [
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,tag=selected] ~4 ~ ~ tp @e[type=glc:chessmen,r=0,family=rook] ~-3 ~ ~"}},
-                    {"run_command": {"command": "tp @e[type=glc:chessmen,tag=selected] @s"}},
-                    {"run_command": {"command": "event entity @e[type=glc:chessmen,tag=selected] moved"}}
+                    {"run_command": {"command": "execute @e[type=glc:chessmen,tag=selected] ~4 ~ ~ tp @e[type=glc:chessmen,r=0.5,family=rook] ~-3 ~ ~"}},
+                    {"trigger": "move_piece_here"}
                 ]
             },
             "castle_east_left": {
                 "sequence": [
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,tag=selected] ~ ~ ~4 tp @e[type=glc:chessmen,r=0,family=rook] ~ ~ ~-3"}},
-                    {"run_command": {"command": "tp @e[type=glc:chessmen,tag=selected] @s"}},
-                    {"run_command": {"command": "event entity @e[type=glc:chessmen,tag=selected] moved"}}
+                    {"run_command": {"command": "execute @e[type=glc:chessmen,tag=selected] ~ ~ ~-4 tp @e[type=glc:chessmen,r=0.5,family=rook] ~ ~ ~3"}},
+                    {"trigger": "move_piece_here"}
                 ]
             },
             "castle_west_left": {
                 "sequence": [
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,tag=selected] ~ ~ ~-4 tp @e[type=glc:chessmen,r=0,family=rook] ~ ~ ~3"}},
-                    {"run_command": {"command": "tp @e[type=glc:chessmen,tag=selected] @s"}},
-                    {"run_command": {"command": "event entity @e[type=glc:chessmen,tag=selected] moved"}}
+                    {"run_command": {"command": "execute @e[type=glc:chessmen,tag=selected] ~ ~ ~4 tp @e[type=glc:chessmen,r=0.5,family=rook] ~ ~ ~-3"}},
+                    {"trigger": "move_piece_here"}
                 ]
             },
             "castle_north_right": {
                 "sequence": [
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,tag=selected] ~3 ~ ~ tp @e[type=glc:chessmen,r=0,family=rook] ~-2 ~ ~"}},
-                    {"run_command": {"command": "tp @e[type=glc:chessmen,tag=selected] @s"}},
-                    {"run_command": {"command": "event entity @e[type=glc:chessmen,tag=selected] moved"}}
+                    {"run_command": {"command": "execute @e[type=glc:chessmen,tag=selected] ~3 ~ ~ tp @e[type=glc:chessmen,r=0.5,family=rook] ~-2 ~ ~"}},
+                    {"trigger": "move_piece_here"}
                 ]
             },
             "castle_south_right": {
                 "sequence": [
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,tag=selected] ~-3 ~ ~ tp @e[type=glc:chessmen,r=0,family=rook] ~2 ~ ~"}},
-                    {"run_command": {"command": "tp @e[type=glc:chessmen,tag=selected] @s"}},
-                    {"run_command": {"command": "event entity @e[type=glc:chessmen,tag=selected] moved"}}
+                    {"run_command": {"command": "execute @e[type=glc:chessmen,tag=selected] ~-3 ~ ~ tp @e[type=glc:chessmen,r=0.5,family=rook] ~2 ~ ~"}},
+                    {"trigger": "move_piece_here"}
                 ]
             },
             "castle_east_right": {
                 "sequence": [
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,tag=selected] ~ ~ ~3 tp @e[type=glc:chessmen,r=0,family=rook] ~-2 ~ ~"}},
-                    {"run_command": {"command": "tp @e[type=glc:chessmen,tag=selected] @s"}},
-                    {"run_command": {"command": "event entity @e[type=glc:chessmen,tag=selected] moved"}}
+                    {"run_command": {"command": "execute @e[type=glc:chessmen,tag=selected] ~ ~ ~3 tp @e[type=glc:chessmen,r=0.5,family=rook] ~ ~ ~-2"}},
+                    {"trigger": "move_piece_here"}
                 ]
             },
             "castle_west_right": {
                 "sequence": [
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,tag=selected] ~ ~ ~-3 tp @e[type=glc:chessmen,r=0,family=rook] ~2 ~ ~"}},
-                    {"run_command": {"command": "tp @e[type=glc:chessmen,tag=selected] @s"}},
-                    {"run_command": {"command": "event entity @e[type=glc:chessmen,tag=selected] moved"}}
+                    {"run_command": {"command": "execute @e[type=glc:chessmen,tag=selected] ~ ~ ~-3 tp @e[type=glc:chessmen,r=0.5,family=rook] ~ ~ ~2"}},
+                    {"trigger": "move_piece_here"}
                 ]
             }
         }   

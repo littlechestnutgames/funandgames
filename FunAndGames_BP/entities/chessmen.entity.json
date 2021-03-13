@@ -17,7 +17,42 @@
                 ]
               }
         },
+        "components": {
+            // We don't want the piece to fall down or prevent someone from moving through them.
+            "minecraft:physics": {
+                "has_collision": false,
+                "has_gravity": false
+            },
+
+            "minecraft:health": {
+                "value": 1,
+                "max": 1
+            },
+
+            // It's very easy to punch entities on mobile. We're filtering that out. /kill still functions.
+            "minecraft:damage_sensor": {
+                "triggers": {
+                    "on_damage": {
+                        "filters": {
+                            "test": "is_family",
+                            "subject": "other",
+                            "operator": "!=",
+                            "value": "chessmen"
+                        }
+                    },
+                    "deals_damage": false
+                }
+            },
+
+            // Don't allow the piece to be pushed. It's probably already aligned to a grid.
+            "minecraft:pushable": {
+                "is_pushable": false,
+                "is_pushable_by_piston": false
+            },
+            "minecraft:conditional_bandwidth_optimization": {}
+        },
         "component_groups": {
+            // Piece types.
             "pawn": {
                 "minecraft:variant": {"value": 0},
                 "minecraft:type_family": { "family": [ "game_piece", "chessmen", "pawn"] },
@@ -67,12 +102,15 @@
                 }
             },
 
+            // Piece selection interactions.
+
+            // These two's events turn an deselected piece into a selected piece.
             "white": {
                 "minecraft:interact": {
                     "interactions": [
                         {
                             "interact_text": "Select",
-                            "on_interact": { "event": "select_white" }
+                            "on_interact": { "event": "select" }
                         }
                     ]
                 },
@@ -83,12 +121,14 @@
                     "interactions": [
                         {
                             "interact_text": "Select",
-                            "on_interact": { "event": "select_black" }
+                            "on_interact": { "event": "select" }
                         }
                     ]
                 },
                 "minecraft:mark_variant": { "value": 1 }
             },
+
+            // These two turn an selected piece into a deselected piece.
             "selected_white": {
                 "minecraft:interact": {
                     "interactions": [
@@ -111,6 +151,8 @@
                 },
                 "minecraft:mark_variant": { "value": 3}
             },
+
+            // Cardinal direction representations.
             "north": {
                 "minecraft:default_look_angle": {"value": 0}
             },
@@ -127,79 +169,46 @@
                 "minecraft:default_look_angle": {"value": 90},
                 "minecraft:genetics": {}
             },
+
+            // This keeps track of if the piece has moved or not, relevant for castling and pawn's initial move.
             "moved_piece": {
                 "minecraft:giveable": {}
             },
+
+            // When added, despawns this entity.
             "despawn": {
                 "minecraft:despawn": {
                     "filters": {"test": "is_visible", "value": true}
                 }
             },
+
+            // The rook was originally positioned on the left side of the board. Relevant for castling position information.
             "left_rook": {
                 "minecraft:skin_id": {"value": 0},
                 "minecraft:type_family": { "family": [ "game_piece", "chessmen", "rook", "left"] }
             },
+
+            // The rook was originally positioned on the left side of the board. Relevant for castling position information.
             "right_rook": {
                 "minecraft:skin_id": {"value": 1},
                 "minecraft:type_family": { "family": [ "game_piece", "chessmen", "rook", "right"] }
             },
-            "target_left_rook": {
-                "minecraft:behavior.nearest_attackable_target": {
-                    "must_see": false,
-                    "must_reach": false,
-                    "within_radius": 4,
-                    "entity_types": [
-                        {"filters": {"all_of": [
-                            {"test":"has_component","operator": "!=","subject": "other","value": "minecraft:giveable"},
-                            {"test":"is_family","subject": "other", "value": "rook"},
-                            {"test":"is_family","subject": "other", "value": "left"}
-                        ]}}
-                    ]
-                }
+
+            // These are indicators only used by the king. When a rook moves, it lets the king know, so it's not counted for castling.
+            "left_rook_moved": {
+                "minecraft:can_climb": {}
             },
-            "target_right_rook": {
-                "minecraft:behavior.nearest_attackable_target": {
-                    "must_see": false,
-                    "must_reach": false,
-                    "within_radius": 3,                    
-                    "entity_types": [
-                        {"filters": {"all_of": [
-                            {"test":"has_component","operator": "!=","subject": "other","value": "minecraft:giveable"},
-                            {"test":"is_family","subject": "other", "value": "rook"},
-                            {"test":"is_family","subject": "other", "value": "right"}
-                        ]}}
-                    ]
+            "right_rook_moved": {
+                "minecraft:can_power_jump": {}
+            },
+
+            "show_marker_timer": {
+                "minecraft:timer": {
+                    "looping": false,
+                    "time": 0.125,
+                    "time_down_event": {"event": "show_squares"}
                 }
             }
-        },
-
-        "components": {
-            "minecraft:physics": {
-                "has_collision": false,
-                "has_gravity": false
-            },
-            "minecraft:health": {
-                "value": 1,
-                "max": 1
-            },
-            "minecraft:damage_sensor": {
-                "triggers": {
-                    "on_damage": {
-                        "filters": {
-                            "test": "is_family",
-                            "subject": "other",
-                            "operator": "!=",
-                            "value": "chessmen"
-                        }
-                    },
-                    "deals_damage": false
-                }
-            },
-            "minecraft:pushable": {
-                "is_pushable": false,
-                "is_pushable_by_piston": false
-            },
-            "minecraft:conditional_bandwidth_optimization": {}
         },
         "events": {
             "nothing": {},
@@ -208,6 +217,7 @@
                 "add": { "component_groups": ["despawn"] }
             },
 
+            // Summon events for black pieces. These are oriented north.
             "make_black_pawn": {"add": { "component_groups": [ "pawn", "black", "north" ] } },
             "make_black_rook": { "add": { "component_groups": [ "rook", "black", "north" ] } },
             "make_black_left_rook": { "add": { "component_groups": [ "rook", "black", "north", "left_rook" ] } },
@@ -217,6 +227,7 @@
             "make_black_queen": { "add": { "component_groups": [ "queen", "black", "north" ] } },
             "make_black_king": { "add": { "component_groups": [ "king", "black", "north" ] } },
 
+            // Summon events for white pieces. These are oriented north.
             "make_white_pawn": { "add": { "component_groups": [ "pawn", "white", "north" ] } },
             "make_white_left_rook": { "add": { "component_groups": [ "rook", "white", "north", "left_rook" ] } },
             "make_white_right_rook": { "add": { "component_groups": [ "rook", "white", "north", "right_rook" ] } },
@@ -225,6 +236,7 @@
             "make_white_queen": { "add": { "component_groups": [ "queen", "white", "north" ] } },
             "make_white_king": { "add": { "component_groups": [ "king", "white", "north" ] } },
 
+            // Summon events for black pieces. These are oriented south.
             "make_black_pawn_south": {"add": { "component_groups": [ "pawn", "black", "south" ] } },
             "make_black_left_rook_south": { "add": { "component_groups": [ "rook", "black", "south", "left_rook" ] } },
             "make_black_right_rook_south": { "add": { "component_groups": [ "rook", "black", "south", "right_rook" ] } },
@@ -252,7 +264,8 @@
                     {"add": { "component_groups": [ "king", "black", "south" ] }}
                  ]
             },
-
+            
+            // Summon events for white pieces. These are oriented south.
             "make_white_pawn_south": { "add": { "component_groups": [ "pawn", "white", "south" ] } },
             "make_white_left_rook_south": { "add": { "component_groups": [ "rook", "white", "south", "left_rook" ] } },
             "make_white_right_rook_south": { "add": { "component_groups": [ "rook", "white", "south", "right_rook" ] } },
@@ -281,6 +294,7 @@
                  ]
             },
 
+            // Summon events for black pieces. These are oriented east.
             "make_black_pawn_east": {"add": { "component_groups": [ "pawn", "black", "east" ] } },
             "make_black_left_rook_east": { "add": { "component_groups": [ "rook", "black", "east", "left_rook" ] } },
             "make_black_right_rook_east": { "add": { "component_groups": [ "rook", "black", "east", "right_rook" ] } },
@@ -308,6 +322,8 @@
                     {"add": { "component_groups": [ "king", "black", "east" ] }}
                 ]
             },
+
+            // Summon events for white pieces. These are oriented east.
             "make_white_pawn_east": { "add": { "component_groups": [ "pawn", "white", "east" ] } },
             "make_white_left_rook_east": { "add": { "component_groups": [ "rook", "white", "east", "left_rook" ] } },
             "make_white_right_rook_east": { "add": { "component_groups": [ "rook", "white", "east", "right_rook" ] } },
@@ -336,6 +352,7 @@
                  ]
             },
 
+            // Summoning events for black pieces. These are oriented west.
             "make_black_pawn_west": {"add": { "component_groups": [ "pawn", "black", "west" ] } },
             "make_black_left_rook_west": { "add": { "component_groups": [ "rook", "black", "west", "left_rook" ] } },
             "make_black_right_rook_west": { "add": { "component_groups": [ "rook", "black", "west", "right_rook" ] } },
@@ -363,6 +380,8 @@
                     {"add": { "component_groups": [ "king", "black", "west" ] }}
                  ]
             },
+
+            // Summoning events for white pieces. These are oriented west.
             "make_white_pawn_west": { "add": { "component_groups": [ "pawn", "white", "west" ] } },
             "make_white_left_rook_west": { "add": { "component_groups": [ "rook", "white", "west", "left_rook" ] } },
             "make_white_right_rook_west": { "add": { "component_groups": [ "rook", "white", "west", "right_rook" ] } },
@@ -390,11 +409,156 @@
                     {"add": { "component_groups": [ "king", "white", "west" ] }}
                  ]
             },
+
+            // When the white left rook moves, the king hears about it and remembers that.
+            "moved_white_left_rook": {
+                "filters": {
+                    "all_of": [
+                        {"test":"is_family", "value": "king"},
+                        {"any_of": [
+                            {"test":"is_mark_variant", "value": 0},
+                            {"test":"is_mark_variant", "value": 2}
+                        ]}
+                    ]
+                },
+                "add": {
+                    "component_groups": [ "moved_left_rook" ]
+                }
+            },
+
+            // When the white right rook moves, the king hears about it and remembers that.
+            "moved_white_right_rook": {
+                "filters": {
+                    "all_of": [
+                        {"test":"is_family", "value": "king"},
+                        {"any_of": [
+                            {"test":"is_mark_variant", "value": 0},
+                            {"test":"is_mark_variant", "value": 2}
+                        ]}
+                    ]
+                },
+                "add": {
+                    "component_groups": [ "moved_right_rook" ]
+                }
+            },
+
+            // When the black left rook moves, the king hears about it and remembers that.
+            "moved_black_left_rook": {
+                "filters": {
+                    "all_of": [
+                        {"test":"is_family", "value": "king"},
+                        {"any_of": [
+                            {"test":"is_mark_variant", "value": 1},
+                            {"test":"is_mark_variant", "value": 3}
+                        ]}
+                    ]
+                },
+                "add": {
+                    "component_groups": [ "left_rook_moved" ]
+                }
+            },
+
+            // When the black left rook moves, the king hears about it and remembers that.
+            "moved_black_right_rook": {
+                "filters": {
+                    "all_of": [
+                        {"test":"is_family", "value": "king"},
+                        {"any_of": [
+                            {"test":"is_mark_variant", "value": 1},
+                            {"test":"is_mark_variant", "value": 3}
+                        ]}
+                    ]
+                },
+                "add": {
+                    "component_groups": [ "right_rook_moved" ]
+                }
+            },
+
+            // This event is fired by the square entity on interact. It lets the piece know to finish moving.
             "moved": {
                 "sequence": [
+                    // Kill the piece it landed on.
                     {"run_command": {"command": "kill @e[type=glc:chessmen,r=0,tag=!selected]"}},
+
+                    // If this is a white left rook, tell the king in an event that it moved.
+                    {
+                        "filters":
+                            {
+                                "all_of": [
+                                    {"test":"is_family","value": "rook"},
+                                    {"test":"is_family","value": "left"},
+                                    {"any_of": [
+                                        {"test": "is_mark_variant", "value": 0},
+                                        {"test": "is_mark_variant", "value": 2}
+                                    ]},
+                                    {"test":"has_component","operator": "!=","value": "minecraft:giveable"}
+                                ]
+                            },
+                            "run_command": {
+                                "command": "event entity @e[type=glc:chessmen,family=king,r=32] moved_white_left_rook"
+                            }
+                    },
+
+                    // If this is a white right rook, tell the king in an event that it moved.
+                    {
+                        "filters": {
+                            "all_of": [
+                                {"test":"is_family","value": "rook"},
+                                {"test":"is_family","value": "right"},
+                                {"any_of": [
+                                    {"test": "is_mark_variant", "value": 0},
+                                    {"test": "is_mark_variant", "value": 2}
+                                ]},
+                                {"test":"has_component","operator": "!=","value": "minecraft:giveable"}
+                            ]
+                        },
+                        "run_command": {
+                            "command": "event entity @e[type=glc:chessmen,family=king,r=32] moved_white_right_rook"
+                        }
+                    },
+
+                    // If this is a black left rook, tell the king in an event that it moved.
+                    {
+                        "filters":
+                            {
+                                "all_of": [
+                                    {"test":"is_family","value": "rook"},
+                                    {"test":"is_family","value": "left"},
+                                    {"any_of": [
+                                        {"test": "is_mark_variant", "value": 1},
+                                        {"test": "is_mark_variant", "value": 3}
+                                    ]},
+                                    {"test":"has_component","operator": "!=","value": "minecraft:giveable"}
+                                ]
+                            },
+                            "run_command": {
+                                "command": "event entity @e[type=glc:chessmen,family=king,r=32] moved_black_left_rook"
+                            }
+                    },
+
+                    // If this is a black right rook, tell the king in an event that it moved.
+                    {
+                        "filters":
+                            {
+                                "all_of": [
+                                    {"test":"is_family","value": "rook"},
+                                    {"test":"is_family","value": "right"},
+                                    {"any_of": [
+                                        {"test": "is_mark_variant", "value": 1},
+                                        {"test": "is_mark_variant", "value": 3}
+                                    ]},
+                                    {"test":"has_component","operator": "!=","value": "minecraft:giveable"}
+                                ]
+                            },
+                            "run_command": {
+                                "command": "event entity @e[type=glc:chessmen,family=king,r=32] moved_black_right_rook"
+                            }
+                    },
+
+                    // Deselect the entity and mark that this piece has moved since the beginning of the game.
                     {"run_command": {"command": "event entity @s deselect"}},
                     {
+                        "filters": {"test":"has_component", "operator": "!=", "value": "minecraft:giveable"},
                         "add": {
                             "component_groups": [ "moved_piece" ]
                         }
@@ -402,6 +566,7 @@
                 ]
             },
 
+            // Emitted by white selected pieces. Removes attack squares from underneath pieces that are the same color as the selected piece.
             "remove_markers_under_white": {
                 "filters": {"test":"is_mark_variant","subject": "self", "value": 0},
                 "sequence": [
@@ -410,15 +575,11 @@
                         "run_command": {
                             "command": "event entity @e[type=glc:square,r=0] force_despawn"
                         }
-                    },
-                    {
-                        "filters": {"test":"is_mark_variant", "subject": "self", "value": 0},
-                        "run_command": {
-                            "command": "say Removing squares under white."
-                        }
                     }
                 ]
             },
+
+            // Emitted by black selected pieces. Removes attack squares from underneath pieces that are the same color as the selected piece.
             "remove_markers_under_black": {
                 "filters": {"test":"is_mark_variant","subject": "self", "value": 1},
                 "sequence": [
@@ -427,403 +588,76 @@
                         "run_command": {
                             "command": "event entity @e[type=glc:square,r=0] force_despawn"
                         }
-                    },
-                    {
-                        "run_command": {
-                            "command": "say Removing squares under black."
-                        }
                     }
                 ]
             },
 
+            "remove_markers": {
+                "sequence": [
+                    {
+                        "filters": {"test": "is_mark_variant", "value": 0},
+                        "run_command": { "command": "event entity @e[type=glc:chessmen,r=32] remove_markers_under_white" }
+                    },
+                    {
+                        "filters": {"test": "is_mark_variant", "value": 1},
+                        "run_command": { "command": "event entity @e[type=glc:chessmen,r=32] remove_markers_under_black" }
+                    },
+                    {"add": {"component_groups": ["show_marker_timer"]}}
+                ]
+            },
+
+            "show_squares": {
+                "run_command": { "command": "event entity @e[type=glc:square,r=32] show" }
+            },
+            // This is the rook's movement pattern. It is also reused by the queen.
+            // This draws 7 squares in the 4 cardinal directions, then erases squares that are not valid.
             "trace_plus": {
                 "sequence": [
-                    // North Line
-                    {"run_command": {"command": "summon glc:square ~ ~ ~-1"}},
-                    {"run_command": {"command": "summon glc:square ~ ~ ~-2"}},
-                    {"run_command": {"command": "summon glc:square ~ ~ ~-3"}},
-                    {"run_command": {"command": "summon glc:square ~ ~ ~-4"}},
-                    {"run_command": {"command": "summon glc:square ~ ~ ~-5"}},
-                    {"run_command": {"command": "summon glc:square ~ ~ ~-6"}},
-                    {"run_command": {"command": "summon glc:square ~ ~ ~-7"}},
-
-                    // If there exists a chess piece directly in front of the selected piece, remove the spaces behind it.
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,z=~-1,r=0.5] ~ ~ ~-1 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,z=~-1,r=0.5] ~ ~ ~-2 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,z=~-1,r=0.5] ~ ~ ~-3 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,z=~-1,r=0.5] ~ ~ ~-4 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,z=~-1,r=0.5] ~ ~ ~-5 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,z=~-1,r=0.5] ~ ~ ~-6 event entity @e[type=glc:square,r=0] force_despawn"}},
-
-                    // If there exists a chess piece blocking from the second square of the selected piece, remove the spaces behind it.
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,z=~-2,r=0.5] ~ ~ ~-1 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,z=~-2,r=0.5] ~ ~ ~-2 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,z=~-2,r=0.5] ~ ~ ~-3 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,z=~-2,r=0.5] ~ ~ ~-4 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,z=~-2,r=0.5] ~ ~ ~-5 event entity @e[type=glc:square,r=0] force_despawn"}},
-
-                    // If there exists a chess piece blocking from the third square of the selected piece, remove the spaces behind it.
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,z=~-3,r=0.5] ~ ~ ~-1 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,z=~-3,r=0.5] ~ ~ ~-2 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,z=~-3,r=0.5] ~ ~ ~-3 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,z=~-3,r=0.5] ~ ~ ~-4 event entity @e[type=glc:square,r=0] force_despawn"}},
-
-                    // If there exists a chess piece blocking from the fourth square of the selected piece, remove the spaces behind it.
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,z=~-4,r=0.5] ~ ~ ~-1 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,z=~-4,r=0.5] ~ ~ ~-2 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,z=~-4,r=0.5] ~ ~ ~-3 event entity @e[type=glc:square,r=0] force_despawn"}},
-
-                    // If there exists a chess piece blocking from the fifth square of the selected piece, remove the spaces behind it.
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,z=~-5,r=0.5] ~ ~ ~-1 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,z=~-5,r=0.5] ~ ~ ~-2 event entity @e[type=glc:square,r=0] force_despawn"}},
-
-                    // If there exists a chess piece blocking from the sixth square of the selected piece, block the final square.
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,z=~-6,r=0.5] ~ ~ ~-1 event entity @e[type=glc:square,r=0] force_despawn"}},
-
-                    // South Line
-                    {"run_command": {"command": "summon glc:square ~ ~ ~1"}},
-                    {"run_command": {"command": "summon glc:square ~ ~ ~2"}},
-                    {"run_command": {"command": "summon glc:square ~ ~ ~3"}},
-                    {"run_command": {"command": "summon glc:square ~ ~ ~4"}},
-                    {"run_command": {"command": "summon glc:square ~ ~ ~5"}},
-                    {"run_command": {"command": "summon glc:square ~ ~ ~6"}},
-                    {"run_command": {"command": "summon glc:square ~ ~ ~7"}},
-
-                    // If there exists a chess piece directly in front of the selected piece, remove the spaces behind it.
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,z=~1,r=0.5] ~ ~ ~1 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,z=~1,r=0.5] ~ ~ ~2 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,z=~1,r=0.5] ~ ~ ~3 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,z=~1,r=0.5] ~ ~ ~4 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,z=~1,r=0.5] ~ ~ ~5 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,z=~1,r=0.5] ~ ~ ~6 event entity @e[type=glc:square,r=0] force_despawn"}},
-
-                    // If there exists a chess piece blocking from the second square of the selected piece, remove the spaces behind it.
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,z=~2,r=0.5] ~ ~ ~1 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,z=~2,r=0.5] ~ ~ ~2 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,z=~2,r=0.5] ~ ~ ~3 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,z=~2,r=0.5] ~ ~ ~4 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,z=~2,r=0.5] ~ ~ ~5 event entity @e[type=glc:square,r=0] force_despawn"}},
-
-                    // If there exists a chess piece blocking from the third square of the selected piece, remove the spaces behind it.
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,z=~3,r=0.5] ~ ~ ~1 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,z=~3,r=0.5] ~ ~ ~2 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,z=~3,r=0.5] ~ ~ ~3 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,z=~3,r=0.5] ~ ~ ~4 event entity @e[type=glc:square,r=0] force_despawn"}},
-
-                    // If there exists a chess piece blocking from the fourth square of the selected piece, remove the spaces behind it.
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,z=~4,r=0.5] ~ ~ ~1 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,z=~4,r=0.5] ~ ~ ~2 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,z=~4,r=0.5] ~ ~ ~3 event entity @e[type=glc:square,r=0] force_despawn"}},
-
-                    // If there exists a chess piece blocking from the fifth square of the selected piece, remove the spaces behind it.
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,z=~5,r=0.5] ~ ~ ~1 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,z=~5,r=0.5] ~ ~ ~2 event entity @e[type=glc:square,r=0] force_despawn"}},
-
-                    // If there exists a chess piece blocking from the sixth square of the selected piece, block the final square.
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,z=~6,r=0.5] ~ ~ ~1 event entity @e[type=glc:square,r=0] force_despawn"}},
-
-                    // West Line
-                    {"run_command": {"command": "summon glc:square ~-1 ~ ~"}},
-                    {"run_command": {"command": "summon glc:square ~-2 ~ ~"}},
-                    {"run_command": {"command": "summon glc:square ~-3 ~ ~"}},
-                    {"run_command": {"command": "summon glc:square ~-4 ~ ~"}},
-                    {"run_command": {"command": "summon glc:square ~-5 ~ ~"}},
-                    {"run_command": {"command": "summon glc:square ~-6 ~ ~"}},
-                    {"run_command": {"command": "summon glc:square ~-7 ~ ~"}},
-
-                    // If there exists a chess piece directly in front of the selected piece, remove the spaces behind it.
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-1,r=0.5] ~-1 ~ ~ event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-1,r=0.5] ~-2 ~ ~ event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-1,r=0.5] ~-3 ~ ~ event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-1,r=0.5] ~-4 ~ ~ event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-1,r=0.5] ~-5 ~ ~ event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-1,r=0.5] ~-6 ~ ~ event entity @e[type=glc:square,r=0] force_despawn"}},
-
-                    // If there exists a chess piece blocking from the second square of the selected piece, remove the spaces behind it.
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-2,r=0.5] ~-1 ~ ~ event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-2,r=0.5] ~-2 ~ ~ event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-2,r=0.5] ~-3 ~ ~ event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-2,r=0.5] ~-4 ~ ~ event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-2,r=0.5] ~-5 ~ ~ event entity @e[type=glc:square,r=0] force_despawn"}},
-
-                    // If there exists a chess piece blocking from the third square of the selected piece, remove the spaces behind it.
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-3,r=0.5] ~-1 ~ ~ event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-3,r=0.5] ~-2 ~ ~ event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-3,r=0.5] ~-3 ~ ~ event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-3,r=0.5] ~-4 ~ ~ event entity @e[type=glc:square,r=0] force_despawn"}},
-
-                    // If there exists a chess piece blocking from the fourth square of the selected piece, remove the spaces behind it.
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-4,r=0.5] ~-1 ~ ~ event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-4,r=0.5] ~-2 ~ ~ event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-4,r=0.5] ~-3 ~ ~ event entity @e[type=glc:square,r=0] force_despawn"}},
-
-                    // If there exists a chess piece blocking from the fifth square of the selected piece, remove the spaces behind it.
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-5,r=0.5] ~-1 ~ ~ event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-5,r=0.5] ~-2 ~ ~ event entity @e[type=glc:square,r=0] force_despawn"}},
-
-                    // If there exists a chess piece blocking from the sixth square of the selected piece, block the final square.
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-6,r=0.5] ~-1 ~ ~ event entity @e[type=glc:square,r=0] force_despawn"}},
-
-                    // East Line
-                    {"run_command": {"command": "summon glc:square ~1 ~ ~"}},
-                    {"run_command": {"command": "summon glc:square ~2 ~ ~"}},
-                    {"run_command": {"command": "summon glc:square ~3 ~ ~"}},
-                    {"run_command": {"command": "summon glc:square ~4 ~ ~"}},
-                    {"run_command": {"command": "summon glc:square ~5 ~ ~"}},
-                    {"run_command": {"command": "summon glc:square ~6 ~ ~"}},
-                    {"run_command": {"command": "summon glc:square ~7 ~ ~"}},
-
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~1,r=0.5] ~1 ~ ~ event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~1,r=0.5] ~2 ~ ~ event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~1,r=0.5] ~3 ~ ~ event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~1,r=0.5] ~4 ~ ~ event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~1,r=0.5] ~5 ~ ~ event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~1,r=0.5] ~6 ~ ~ event entity @e[type=glc:square,r=0] force_despawn"}},
-
-                    // If there exists a chess piece blocking from the second square of the selected piece, remove the spaces behind it.
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~2,r=0.5] ~1 ~ ~ event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~2,r=0.5] ~2 ~ ~ event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~2,r=0.5] ~3 ~ ~ event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~2,r=0.5] ~4 ~ ~ event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~2,r=0.5] ~5 ~ ~ event entity @e[type=glc:square,r=0] force_despawn"}},
-
-                    // If there exists a chess piece blocking from the third square of the selected piece, remove the spaces behind it.
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~3,r=0.5] ~1 ~ ~ event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~3,r=0.5] ~2 ~ ~ event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~3,r=0.5] ~3 ~ ~ event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~3,r=0.5] ~4 ~ ~ event entity @e[type=glc:square,r=0] force_despawn"}},
-
-                    // If there exists a chess piece blocking from the fourth square of the selected piece, remove the spaces behind it.
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~4,r=0.5] ~1 ~ ~ event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~4,r=0.5] ~2 ~ ~ event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~4,r=0.5] ~3 ~ ~ event entity @e[type=glc:square,r=0] force_despawn"}},
-
-                    // If there exists a chess piece blocking from the fifth square of the selected piece, remove the spaces behind it.
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~5,r=0.5] ~1 ~ ~ event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~5,r=0.5] ~2 ~ ~ event entity @e[type=glc:square,r=0] force_despawn"}},
-
-                    // If there exists a chess piece blocking from the sixth square of the selected piece, block the final square.
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~6,r=0.5] ~1 ~ ~ event entity @e[type=glc:square,r=0] force_despawn"}},
-
                     {
-                        "filters": {"test": "is_mark_variant", "value": 0},
-                        "run_command": { "command": "event entity @e[type=glc:chessmen,r=32] remove_markers_under_white" }
-                    },
-                    {
-                        "filters": {"test": "is_mark_variant", "value": 1},
-                        "run_command": { "command": "event entity @e[type=glc:chessmen,r=32] remove_markers_under_black" }
+                        "run_command": {"command": "function chess_trace_plus"}
                     }
                 ]
             },
 
+            // This is the bishop's movement pattern. It is also reused by the queen.
+            // This draws 7 squares in the 4 intermediate directions, then erases squares that are not valid.
             "trace_cross": {
                 "sequence": [
-                    // Northwest Line
-                    {"run_command": {"command": "summon glc:square ~-1 ~ ~-1"}},
-                    {"run_command": {"command": "summon glc:square ~-2 ~ ~-2"}},
-                    {"run_command": {"command": "summon glc:square ~-3 ~ ~-3"}},
-                    {"run_command": {"command": "summon glc:square ~-4 ~ ~-4"}},
-                    {"run_command": {"command": "summon glc:square ~-5 ~ ~-5"}},
-                    {"run_command": {"command": "summon glc:square ~-6 ~ ~-6"}},
-                    {"run_command": {"command": "summon glc:square ~-7 ~ ~-7"}},
-
-                    // If there exists a chess piece directly in front of the selected piece, remove the spaces behind it.
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-1,z=~-1,r=0.5] ~-1 ~ ~-1 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-1,z=~-1,r=0.5] ~-2 ~ ~-2 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-1,z=~-1,r=0.5] ~-3 ~ ~-3 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-1,z=~-1,r=0.5] ~-4 ~ ~-4 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-1,z=~-1,r=0.5] ~-5 ~ ~-5 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-1,z=~-1,r=0.5] ~-6 ~ ~-6 event entity @e[type=glc:square,r=0] force_despawn"}},
-
-                    // If there exists a chess piece blocking from the second square of the selected piece, remove the spaces behind it.
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-2,z=~-2,r=0.5] ~-1 ~ ~-1 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-2,z=~-2,r=0.5] ~-2 ~ ~-2 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-2,z=~-2,r=0.5] ~-3 ~ ~-3 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-2,z=~-2,r=0.5] ~-4 ~ ~-4 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-2,z=~-2,r=0.5] ~-5 ~ ~-5 event entity @e[type=glc:square,r=0] force_despawn"}},
-
-                    // If there exists a chess piece blocking from the third square of the selected piece, remove the spaces behind it.
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-3,z=~-3,r=0.5] ~-1 ~ ~-1 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-3,z=~-3,r=0.5] ~-2 ~ ~-2 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-3,z=~-3,r=0.5] ~-3 ~ ~-3 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-3,z=~-3,r=0.5] ~-4 ~ ~-4 event entity @e[type=glc:square,r=0] force_despawn"}},
-
-                    // If there exists a chess piece blocking from the fourth square of the selected piece, remove the spaces behind it.
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-4,z=~-4,r=0.5] ~-1 ~ ~-1 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-4,z=~-4,r=0.5] ~-2 ~ ~-2 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-4,z=~-4,r=0.5] ~-3 ~ ~-3 event entity @e[type=glc:square,r=0] force_despawn"}},
-
-                    // If there exists a chess piece blocking from the fifth square of the selected piece, remove the spaces behind it.
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-5,z=~-5,r=0.5] ~-1 ~ ~-1 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-5,z=~-5,r=0.5] ~-2 ~ ~-2 event entity @e[type=glc:square,r=0] force_despawn"}},
-
-                    // If there exists a chess piece blocking from the sixth square of the selected piece, block the final square.
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-6,z=~-6,r=0.5] ~-1 ~ ~-1 event entity @e[type=glc:square,r=0] force_despawn"}},
-
-                    // Southeast Line
-                    {"run_command": {"command": "summon glc:square ~1 ~ ~1"}},
-                    {"run_command": {"command": "summon glc:square ~2 ~ ~2"}},
-                    {"run_command": {"command": "summon glc:square ~3 ~ ~3"}},
-                    {"run_command": {"command": "summon glc:square ~4 ~ ~4"}},
-                    {"run_command": {"command": "summon glc:square ~5 ~ ~5"}},
-                    {"run_command": {"command": "summon glc:square ~6 ~ ~6"}},
-                    {"run_command": {"command": "summon glc:square ~7 ~ ~7"}},
-
-                    // If there exists a chess piece directly in front of the selected piece, remove the spaces behind it.
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~1,z=~1,r=0.5] ~1 ~ ~1 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~1,z=~1,r=0.5] ~2 ~ ~2 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~1,z=~1,r=0.5] ~3 ~ ~3 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~1,z=~1,r=0.5] ~4 ~ ~4 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~1,z=~1,r=0.5] ~5 ~ ~5 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~1,z=~1,r=0.5] ~6 ~ ~6 event entity @e[type=glc:square,r=0] force_despawn"}},
-
-                    // If there exists a chess piece blocking from the second square of the selected piece, remove the spaces behind it.
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~2,z=~2,r=0.5] ~1 ~ ~1 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~2,z=~2,r=0.5] ~2 ~ ~2 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~2,z=~2,r=0.5] ~3 ~ ~3 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~2,z=~2,r=0.5] ~4 ~ ~4 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~2,z=~2,r=0.5] ~5 ~ ~5 event entity @e[type=glc:square,r=0] force_despawn"}},
-
-                    // If there exists a chess piece blocking from the third square of the selected piece, remove the spaces behind it.
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~3,z=~3,r=0.5] ~1 ~ ~1 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~3,z=~3,r=0.5] ~2 ~ ~2 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~3,z=~3,r=0.5] ~3 ~ ~3 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~3,z=~3,r=0.5] ~4 ~ ~4 event entity @e[type=glc:square,r=0] force_despawn"}},
-
-                    // If there exists a chess piece blocking from the fourth square of the selected piece, remove the spaces behind it.
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~4,z=~4,r=0.5] ~1 ~ ~1 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~4,z=~4,r=0.5] ~2 ~ ~2 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~4,z=~4,r=0.5] ~3 ~ ~3 event entity @e[type=glc:square,r=0] force_despawn"}},
-
-                    // If there exists a chess piece blocking from the fifth square of the selected piece, remove the spaces behind it.
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~5,z=~5,r=0.5] ~1 ~ ~1 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~5,z=~5,r=0.5] ~2 ~ ~2 event entity @e[type=glc:square,r=0] force_despawn"}},
-
-                    // If there exists a chess piece blocking from the sixth square of the selected piece, block the final square.
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~6,z=~6,r=0.5] ~1 ~ ~1 event entity @e[type=glc:square,r=0] force_despawn"}},
-
-                    // Southwest Line
-                    {"run_command": {"command": "summon glc:square ~-1 ~ ~1"}},
-                    {"run_command": {"command": "summon glc:square ~-2 ~ ~2"}},
-                    {"run_command": {"command": "summon glc:square ~-3 ~ ~3"}},
-                    {"run_command": {"command": "summon glc:square ~-4 ~ ~4"}},
-                    {"run_command": {"command": "summon glc:square ~-5 ~ ~5"}},
-                    {"run_command": {"command": "summon glc:square ~-6 ~ ~6"}},
-                    {"run_command": {"command": "summon glc:square ~-7 ~ ~7"}},
-
-                    // If there exists a chess piece directly in front of the selected piece, remove the spaces behind it.
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-1,z=~1,r=0.5] ~-1 ~ ~1 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-1,z=~1,r=0.5] ~-2 ~ ~2 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-1,z=~1,r=0.5] ~-3 ~ ~3 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-1,z=~1,r=0.5] ~-4 ~ ~4 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-1,z=~1,r=0.5] ~-5 ~ ~5 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-1,z=~1,r=0.5] ~-6 ~ ~6 event entity @e[type=glc:square,r=0] force_despawn"}},
-
-                    // If there exists a chess piece blocking from the second square of the selected piece, remove the spaces behind it.
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-2,z=~2,r=0.5] ~-1 ~ ~1 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-2,z=~2,r=0.5] ~-2 ~ ~2 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-2,z=~2,r=0.5] ~-3 ~ ~3 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-2,z=~2,r=0.5] ~-4 ~ ~4 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-2,z=~2,r=0.5] ~-5 ~ ~5 event entity @e[type=glc:square,r=0] force_despawn"}},
-
-                    // If there exists a chess piece blocking from the third square of the selected piece, remove the spaces behind it.
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-3,z=~3,r=0.5] ~-1 ~ ~1 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-3,z=~3,r=0.5] ~-2 ~ ~2 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-3,z=~3,r=0.5] ~-3 ~ ~3 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-3,z=~3,r=0.5] ~-4 ~ ~4 event entity @e[type=glc:square,r=0] force_despawn"}},
-
-                    // If there exists a chess piece blocking from the fourth square of the selected piece, remove the spaces behind it.
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-4,z=~4,r=0.5] ~-1 ~ ~1 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-4,z=~4,r=0.5] ~-2 ~ ~2 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-4,z=~4,r=0.5] ~-3 ~ ~3 event entity @e[type=glc:square,r=0] force_despawn"}},
-
-                    // If there exists a chess piece blocking from the fifth square of the selected piece, remove the spaces behind it.
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-5,z=~5,r=0.5] ~-1 ~ ~1 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-5,z=~5,r=0.5] ~-2 ~ ~2 event entity @e[type=glc:square,r=0] force_despawn"}},
-
-                    // If there exists a chess piece blocking from the sixth square of the selected piece, block the final square.
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-6,z=~6,r=0.5] ~-1 ~ ~1 event entity @e[type=glc:square,r=0] force_despawn"}},
-
-                    // Northeast Line
-                    {"run_command": {"command": "summon glc:square ~1 ~ ~-1"}},
-                    {"run_command": {"command": "summon glc:square ~2 ~ ~-2"}},
-                    {"run_command": {"command": "summon glc:square ~3 ~ ~-3"}},
-                    {"run_command": {"command": "summon glc:square ~4 ~ ~-4"}},
-                    {"run_command": {"command": "summon glc:square ~5 ~ ~-5"}},
-                    {"run_command": {"command": "summon glc:square ~6 ~ ~-6"}},
-                    {"run_command": {"command": "summon glc:square ~7 ~ ~-7"}},
-
-                    // If there exists a chess piece directly in front of the selected piece, remove the spaces behind it.
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~1,z=~-1,r=0.5] ~1 ~ ~-1 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~1,z=~-1,r=0.5] ~2 ~ ~-2 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~1,z=~-1,r=0.5] ~3 ~ ~-3 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~1,z=~-1,r=0.5] ~4 ~ ~-4 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~1,z=~-1,r=0.5] ~5 ~ ~-5 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~1,z=~-1,r=0.5] ~6 ~ ~-6 event entity @e[type=glc:square,r=0] force_despawn"}},
-
-                    // If there exists a chess piece blocking from the second square of the selected piece, remove the spaces behind it.
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~2,z=~-2,r=0.5] ~1 ~ ~-1 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~2,z=~-2,r=0.5] ~2 ~ ~-2 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~2,z=~-2,r=0.5] ~3 ~ ~-3 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~2,z=~-2,r=0.5] ~4 ~ ~-4 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~2,z=~-2,r=0.5] ~5 ~ ~-5 event entity @e[type=glc:square,r=0] force_despawn"}},
-
-                    // If there exists a chess piece blocking from the third square of the selected piece, remove the spaces behind it.
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~3,z=~-3,r=0.5] ~1 ~ ~-1 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~3,z=~-3,r=0.5] ~2 ~ ~-2 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~3,z=~-3,r=0.5] ~3 ~ ~-3 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~3,z=~-3,r=0.5] ~4 ~ ~-4 event entity @e[type=glc:square,r=0] force_despawn"}},
-
-                    // If there exists a chess piece blocking from the fourth square of the selected piece, remove the spaces behind it.
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~4,z=~-4,r=0.5] ~1 ~ ~-1 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~4,z=~-4,r=0.5] ~2 ~ ~-2 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~4,z=~-4,r=0.5] ~3 ~ ~-3 event entity @e[type=glc:square,r=0] force_despawn"}},
-
-                    // If there exists a chess piece blocking from the fifth square of the selected piece, remove the spaces behind it.
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~5,z=~-5,r=0.5] ~1 ~ ~-1 event entity @e[type=glc:square,r=0] force_despawn"}},
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~5,z=~-5,r=0.5] ~2 ~ ~-2 event entity @e[type=glc:square,r=0] force_despawn"}},
-
-                    // If there exists a chess piece blocking from the sixth square of the selected piece, block the final square.
-                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~6,z=~-6,r=0.5] ~1 ~ ~-1 event entity @e[type=glc:square,r=0] force_despawn"}},
                     {
-                        "filters": {"test": "is_mark_variant", "value": 0},
-                        "run_command": { "command": "event entity @e[type=glc:chessmen,r=32] remove_markers_under_white" }
-                    },
-                    {
-                        "filters": {"test": "is_mark_variant", "value": 1},
-                        "run_command": { "command": "event entity @e[type=glc:chessmen,r=32] remove_markers_under_black" }
+                        "run_command": { "command": "function chess_trace_cross"}
                     }
                 ]
             },
 
-            "add_white_tag": {
-                "run_command": {"command": "tag @s add white"}
-            },
-            "add_black_tag": {
-                "run_command": {"command": "tag @s add black"}
-            },
-
+            // This clips away all the squares that lay out of bounds of the board.
             "clip_board": {
                 "run_command": {"command": "event entity @e[type=glc:border,r=8] clip_board"}
             },
 
             "deselect": {
                 "sequence": [
+                    // Deselect this piece.
                     {
                         "run_command": {
                             "command": "tag @s remove selected"
                         }
                     },
+
+                    // Force the move/attack squares to despawn.
                     {
                         "run_command": {
                             "command": "event entity @e[type=glc:square,r=32] force_despawn"
                         }
                     },
+
+                    // If the selected piece was selected_white, change it back to white.
                     {
                         "filters": [{"test": "is_mark_variant", "value": 2}],
                         "remove": {"component_groups": ["selected_white"]},
                         "add": {"component_groups": [ "white" ]}
                     },
+
+                    // If the selected piece was selected_black, change it back to black.
                     {
                         "filters": [{"test": "is_mark_variant", "value": 3}],
                         "remove": {"component_groups": ["selected_black"]},
@@ -831,33 +665,30 @@
                     }
                 ]
             },
-            "select_white": {
-                "sequence": [
-                    {"run_command": {"command": "event entity @s select"}}
-                ]
-            },
-            "select_black": {
-                "sequence": [
-                    {"run_command": {"command": "event entity @s select"}}
-                ]
-            },
             "select": {
                 "sequence": [
+                    // If there already is a piece selected, deselect it.
                     {
                         "run_command": {
                             "command": "event entity @e[type=glc:chessmen,r=32] deselect"
                         }
                     },
+
+                    // Tag this piece as selected.
                     {
                         "run_command": {
                             "command": "tag @s add selected"
                         }
                     },
+
+                    // If the piece is white, add the selected_white component group to it.
                     {
                         "filters": [ {"test": "is_mark_variant", "value": 0 }],
                         "remove": { "component_groups": [ "white" ]},
                         "add": { "component_groups": [ "selected_white" ] }
                     },
+
+                    // If the piece is black, add the selected_black component group to it.
                     {
                         "filters": [ {"test": "is_mark_variant", "value": 1 }],
                         "sequence": [
@@ -910,16 +741,7 @@
 
                                     // If the opposing piece has just done a double move and is beside the selected pawn.
                                     {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-1,tag=double_move,r=0.5] ~ ~ ~ summon glc:square ~ ~ ~-1 en_passant_north"}},
-                                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~1,tag=double_move,r=0.5] ~ ~ ~ summon glc:square ~ ~ ~-1 en_passant_north"}},
-                                    {
-                                        "filters": {"test": "is_mark_variant", "value": 0},
-                                        "run_command": { "command": "event entity @e[type=glc:chessmen,r=32] remove_markers_under_white" }
-                                    },
-                                    {
-                                        "filters": {"test": "is_mark_variant", "value": 1},
-                                        "run_command": { "command": "event entity @e[type=glc:chessmen,r=32] remove_markers_under_black" }
-                                    }
-                                ]
+                                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~1,tag=double_move,r=0.5] ~ ~ ~ summon glc:square ~ ~ ~-1 en_passant_north"}}                                ]
                             },
                             {
                                 "filters": {
@@ -929,7 +751,7 @@
                                     ]
                                 },
                                 "sequence": [
-                                    // Southrthward - Move square
+                                    // Souththward - Move square
                                     {"run_command": {"command": "summon glc:square ~ ~ ~1"}},
                                 
                                     // Southward - Despawn if the square is occupied.
@@ -961,15 +783,7 @@
                                     
                                     // If the opposing piece has just done a double move and is beside the selected pawn.
                                     {"run_command": {"command": "execute @e[type=glc:chessmen,x=~-1,tag=double_move,r=0.5] ~ ~ ~ summon glc:square ~ ~ ~1 en_passant_south"}},
-                                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~1,tag=double_move,r=0.5] ~ ~ ~ summon glc:square ~ ~ ~1 en_passant_south"}},
-                                    {
-                                        "filters": {"test": "is_mark_variant", "value": 0},
-                                        "run_command": { "command": "event entity @e[type=glc:chessmen,r=32] remove_markers_under_white" }
-                                    },
-                                    {
-                                        "filters": {"test": "is_mark_variant", "value": 1},
-                                        "run_command": { "command": "event entity @e[type=glc:chessmen,r=32] remove_markers_under_black" }
-                                    }
+                                    {"run_command": {"command": "execute @e[type=glc:chessmen,x=~1,tag=double_move,r=0.5] ~ ~ ~ summon glc:square ~ ~ ~1 en_passant_south"}}
                                 ]
                             },
                             {
@@ -1012,15 +826,7 @@
                                     
                                     // If the opposing piece has just done a double move and is beside the selected pawn.
                                     {"run_command": {"command": "execute @e[type=glc:chessmen,z=~-1,tag=double_move,r=0.5] ~ ~ ~ summon glc:square ~1 ~ ~ en_passant_east"}},
-                                    {"run_command": {"command": "execute @e[type=glc:chessmen,z=~1,tag=double_move,r=0.5] ~ ~ ~ summon glc:square ~1 ~ ~ en_passant_east"}},
-                                    {
-                                        "filters": {"test": "is_mark_variant", "value": 0},
-                                        "run_command": { "command": "event entity @e[type=glc:chessmen,r=32] remove_markers_under_white" }
-                                    },
-                                    {
-                                        "filters": {"test": "is_mark_variant", "value": 1},
-                                        "run_command": { "command": "event entity @e[type=glc:chessmen,r=32] remove_markers_under_black" }
-                                    }
+                                    {"run_command": {"command": "execute @e[type=glc:chessmen,z=~1,tag=double_move,r=0.5] ~ ~ ~ summon glc:square ~1 ~ ~ en_passant_east"}}
                                 ]
                             },
                             {
@@ -1063,15 +869,7 @@
                                     
                                     // If the opposing piece has just done a double move and is beside the selected pawn.
                                     {"run_command": {"command": "execute @e[type=glc:chessmen,z=~-1,tag=double_move,r=0.5] ~ ~ ~ summon glc:square ~-1 ~ ~ en_passant_west"}},
-                                    {"run_command": {"command": "execute @e[type=glc:chessmen,z=~1,tag=double_move,r=0.5] ~ ~ ~ summon glc:square ~-1 ~ ~ en_passant_west"}},
-                                    {
-                                        "filters": {"test": "is_mark_variant", "value": 0},
-                                        "run_command": { "command": "event entity @e[type=glc:chessmen,r=32] remove_markers_under_white" }
-                                    },
-                                    {
-                                        "filters": {"test": "is_mark_variant", "value": 1},
-                                        "run_command": { "command": "event entity @e[type=glc:chessmen,r=32] remove_markers_under_black" }
-                                    }
+                                    {"run_command": {"command": "execute @e[type=glc:chessmen,z=~1,tag=double_move,r=0.5] ~ ~ ~ summon glc:square ~-1 ~ ~ en_passant_west"}}
                                 ]
                             }
                         ]
@@ -1083,21 +881,8 @@
                     {
                         "filters": [ {"test": "is_family", "value": "knight"} ],
                         "sequence": [
-                            {"run_command": {"command": "summon glc:square ~1 ~ ~2"}},
-                            {"run_command": {"command": "summon glc:square ~-1 ~ ~2"}},
-                            {"run_command": {"command": "summon glc:square ~2 ~ ~1"}},
-                            {"run_command": {"command": "summon glc:square ~2 ~ ~-1"}},
-                            {"run_command": {"command": "summon glc:square ~-2 ~ ~1"}},
-                            {"run_command": {"command": "summon glc:square ~-2 ~ ~-1"}},
-                            {"run_command": {"command": "summon glc:square ~1 ~ ~-2"}},
-                            {"run_command": {"command": "summon glc:square ~-1 ~ ~-2"}},
                             {
-                                "filters": {"test": "is_mark_variant", "value": 0},
-                                "run_command": { "command": "event entity @e[type=glc:chessmen,r=32] remove_markers_under_white" }
-                            },
-                            {
-                                "filters": {"test": "is_mark_variant", "value": 1},
-                                "run_command": { "command": "event entity @e[type=glc:chessmen,r=32] remove_markers_under_black" }
+                                "run_command": {"command": "function chess_trace_knight"}
                             }
                         ]
                     },
@@ -1115,33 +900,120 @@
                     {
                         "filters": [ {"test": "is_family", "value": "king"} ],
                         "sequence": [
-                            {"run_command": {"command": "summon glc:square ~1 ~ ~-1"}},
-                            {"run_command": {"command": "summon glc:square ~1 ~ ~"}},
-                            {"run_command": {"command": "summon glc:square ~1 ~ ~1"}},
-                            {"run_command": {"command": "summon glc:square ~ ~ ~1"}},
-                            {"run_command": {"command": "summon glc:square ~-1 ~ ~1"}},
-                            {"run_command": {"command": "summon glc:square ~-1 ~ ~"}},
-                            {"run_command": {"command": "summon glc:square ~-1 ~ ~-1"}},
-                            {"run_command": {"command": "summon glc:square ~ ~ ~-1"}},
+                            {
+                                "run_command": {"command": "function chess_trace_king"}
+                            },
                             {
                                 "sequence": [
                                     // Left side castle.
-                                    
+                                    {
+                                        "filters": {
+                                            "all_of": [
+                                                {"test":"has_component","operator": "!=","value": "minecraft:giveable"},
+                                                {"test":"has_component","operator": "!=","value": "minecraft:can_climb"},
+                                                {
+                                                    "none_of": [
+                                                        {"test": "has_component", "value": "minecraft:trusting"},
+                                                        {"test": "has_component", "value": "minecraft:genetics"}
+                                                    ]
+                                                }
+                                            ]
+                                        },
+                                        "run_command": {"command": "summon glc:square ~-2 ~ ~ mark_castle_north_left"}
+                                    },
+                                    {
+                                        "filters": {
+                                            "all_of": [
+                                                {"test":"has_component","operator": "!=","value": "minecraft:giveable"},
+                                                {"test":"has_component","operator": "!=","value": "minecraft:can_climb"},
+                                                {"test": "has_component", "value": "minecraft:trusting"},
+                                                {"test": "has_component", "value": "minecraft:genetics"}
+                                            ]
+                                        },
+                                        "run_command": {"command": "summon glc:square ~2 ~ ~ mark_castle_south_left"}
+                                    },
+                                    {
+                                        "filters": {
+                                            "all_of": [
+                                                {"test":"has_component","operator": "!=", "value": "minecraft:giveable"},
+                                                {"test":"has_component","operator": "!=", "value": "minecraft:can_climb"},
+                                                {"test": "has_component", "value": "minecraft:trusting"},
+                                                {"test": "has_component", "operator": "!=", "value": "minecraft:genetics"}
+                                            ]
+                                        },
+                                        "run_command": {"command": "summon glc:square ~ ~ ~-2 mark_castle_east_left"}
+                                    },
+                                    {
+                                        "filters": {
+                                            "all_of": [
+                                                {"test":"has_component","operator": "!=","value": "minecraft:giveable"},
+                                                {"test":"has_component","operator": "!=","value": "minecraft:can_climb"},
+                                                {"test": "has_component", "operator": "!=", "value": "minecraft:trusting"},
+                                                {"test": "has_component", "value": "minecraft:genetics"}
+                                            ]
+                                        },
+                                        "run_command": {"command": "summon glc:square ~ ~ ~2 mark_castle_west_left"}
+                                    },
+
+
                                     // Right side castle here.
+                                    {
+                                        "filters": {
+                                            "all_of": [
+                                                {"test":"has_component","operator": "!=","value": "minecraft:giveable"},
+                                                {"test":"has_component","operator": "!=","value": "minecraft:can_power_jump"},
+                                                {
+                                                    "none_of": [
+                                                        {"test": "has_component", "value": "minecraft:trusting"},
+                                                        {"test": "has_component", "value": "minecraft:genetics"}
+                                                    ]
+                                                }
+                                            ]
+                                        },
+                                        "run_command": {"command": "summon glc:square ~2 ~ ~ mark_castle_north_right"}
+                                    },
+                                    {
+                                        "filters": {
+                                            "all_of": [
+                                                {"test":"has_component","operator": "!=","value": "minecraft:giveable"},
+                                                {"test":"has_component","operator": "!=","value": "minecraft:can_power_jump"},
+                                                {"test": "has_component", "value": "minecraft:trusting"},
+                                                {"test": "has_component", "value": "minecraft:genetics"}
+                                            ]
+                                        },
+                                        "run_command": {"command": "summon glc:square ~-2 ~ ~ mark_castle_south_right"}
+                                    },
+                                    {
+                                        "filters": {
+                                            "all_of": [
+                                                {"test":"has_component","operator": "!=","value": "minecraft:giveable"},
+                                                {"test":"has_component","operator": "!=","value": "minecraft:can_power_jump"},
+                                                {"test": "has_component", "value": "minecraft:trusting"},
+                                                {"test": "has_component", "operator": "!=", "value": "minecraft:genetics"}
+                                            ]
+                                        },
+                                        "run_command": {"command": "summon glc:square ~ ~ ~2 mark_castle_east_right"}
+                                    },
+                                    {
+                                        "filters": {
+                                            "all_of": [
+                                                {"test":"has_component","operator": "!=","value": "minecraft:giveable"},
+                                                {"test":"has_component","operator": "!=","value": "minecraft:can_power_jump"},
+                                                {"test": "has_component", "operator": "!=", "value": "minecraft:trusting"},
+                                                {"test": "has_component", "value": "minecraft:genetics"}
+                                            ]
+                                        },
+                                        "run_command": {"command": "summon glc:square ~ ~ ~-2 mark_castle_west_right"}
+                                    }
                                 ]
-                            },
-                            {
-                                "filters": {"test": "is_mark_variant", "value": 0},
-                                "run_command": { "command": "event entity @e[type=glc:chessmen,r=32] remove_markers_under_white" }
-                            },
-                            {
-                                "filters": {"test": "is_mark_variant", "value": 1},
-                                "run_command": { "command": "event entity @e[type=glc:chessmen,r=32] remove_markers_under_black" }
                             }
                         ]
                     },
                     {
                         "trigger": "clip_board"
+                    },
+                    {
+                        "trigger": "remove_markers"
                     }
                 ]
             }

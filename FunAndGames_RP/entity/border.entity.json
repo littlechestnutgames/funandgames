@@ -5,7 +5,8 @@
         "identifier": "glc:border",
         "materials": { "default": "skeleton" },
         "textures": {
-          "default": "textures/blocks/border"
+          "default": "textures/blocks/border",
+          "shown": "textures/blocks/border"
         },
         "geometry": {
           "default": "geometry.square"

@@ -1,10 +1,18 @@
 {
-  "format_version": "1.8.0",
+  "format_version": "1.10.0",
   "render_controllers": {
     "controller.render.square": {
+      "arrays": {
+        "textures": {
+          "Array.skins": [
+            "Texture.default",
+            "Texture.shown"
+          ]
+        }
+      },
       "geometry": "Geometry.default",
       "materials": [ { "*": "Material.default" } ],
-      "textures": [ "Texture.default" ]
+      "textures": [ "Array.skins[query.skin_id]" ]
     }
   }
 }

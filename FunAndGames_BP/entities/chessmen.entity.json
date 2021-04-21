@@ -210,9 +210,7 @@
                 }
             }
         },
-        "events": {
-            "nothing": {},
-            
+        "events": {            
             "force_despawn": {
                 "add": { "component_groups": ["despawn"] }
             },

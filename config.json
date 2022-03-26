@@ -1,0 +1,21 @@
+{
+  "name": "FunAndGames",
+  "author": "Lumpy Wizard",
+  "packs": {
+    "behaviorPack": "./packs/FunAndGames_BP",
+    "resourcePack": "./packs/FunAndGames_RP"
+  },
+  "regolith": {
+    "profiles": {
+      "dev": {
+        "filters": [],
+        "export": {
+          "target": "development",
+          "readOnly": false
+        }
+      }
+    },
+    "filterDefinitions": {},
+    "dataPath": "./packs/data"
+  }
+}
